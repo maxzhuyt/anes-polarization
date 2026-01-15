@@ -1,42 +1,52 @@
-,mahalanobis_distance
-imm_unauth,1.0078851129473259
-birthright,1.0363106760926486
-paid_leave,0.7138892219014817
-trump_corr,1.637287924678687
-journ_access,0.8341543668842112
-gun_bkg_chk,0.4973398678854416
-illeg_child,0.9481337519435443
-death_pen,0.9994836145770344
-abortion,1.2325316489471152
-scotus_abort,1.4133026818161256
-ar_ban,0.9409382852663171
-econ_now,1.2732922811295637
-voter_id,1.1909847000895442
-felon_vote,0.8203449055257549
-vax_school,0.4048825041927173
-spend_border,1.5507668598948603
-spend_welfare,1.2748138341444155
-spend_poor,1.1768506328594828
-spend_school,0.8810586440416092
-checks_power,0.22612411791313203
-border_wall,2.303003991399405
-trans_bath,1.2761353961334938
-police_force,1.0062374111218937
-assist_black,1.6231402407313005
-job_guar,1.4789030088036033
-govt_health,1.5561328527325078
-obamacare,2.4081479951825546
-svc_spend,1.5052731957068144
-def_spend,1.0604055025500794
-urban_unrest,1.9199026297033437
-clim_imp,1.5653959624322697
-rus_interf,1.7166274214558428
-ft_trans,1.0698822629100653
-ft_union,0.9630938032563517
-ft_fem,1.355457368422024
-ft_sci,0.9221256889566428
-ft_police,1.1062265228992787
-env_bus,1.5994096722646556
-ghg_emiss,1.1693563674002938
-gun_imp,0.274799396322525
-mil_force,0.3498960914921568
+issue,mahalanobis_distance,variance,area,explanation
+imm_unauth,1.0078851129473259,0.08745007479679232,Immigration,Policy preferences regarding unauthorized/undocumented immigrants.
+birthright,1.0363106760926486,0.12907354624384473,Immigration,Support for birthright citizenship for children born in the U.S. to non-citizen parents.
+paid_leave,0.7138892219014817,0.07235044827301791,Labor,Support for paid parental/family leave policies for new parents and caregivers.
+trump_corr,1.637287924678687,0.09327453248950139,Institutions,Perceptions of corruption involving Donald Trump and/or his administration.
+journ_access,0.8341543668842112,0.1040730658623939,Institutions,Support for press/journalist access to government officials and government transparency norms.
+gun_bkg_chk,0.4973398678854416,0.05034428237283212,Guns,Support for background checks on gun purchases (including universal background checks).
+illeg_child,0.9481337519435443,0.07558092205691394,Immigration,Views on how the U.S. should handle children of undocumented immigrants.
+death_pen,0.9994836145770344,0.14727233213826849,Crime,Support for the death penalty/capital punishment for serious crimes.
+abortion,1.2325316489471152,0.13217571381589632,Abortion,Attitudes toward abortion legality and access.
+scotus_abort,1.4133026818161256,0.12051969554350443,Abortion,Views on Supreme Court decisions and judicial intervention related to abortion.
+ar_ban,0.9409382852663171,0.15733752310727628,Guns,Support for banning assault rifles/assault weapons.
+econ_now,1.2732922811295637,0.07645115109753466,Economy,Evaluation of the current national economy (retrospective economic assessment).
+voter_id,1.1909847000895442,0.10479165615114847,Elections,"Support for voter identification requirements (e.g., photo ID laws)."
+felon_vote,0.8203449055257549,0.10628054715947095,Elections,Support for restoring or extending voting rights to people with felony convictions.
+vax_school,0.4048825041927173,0.08741233023700908,Health,Support for school vaccination requirements for children attending school.
+spend_border,1.5507668598948603,0.11300917245999198,Immigration,Preferences for federal spending levels on border security.
+spend_welfare,1.2748138341444155,0.09492745112783837,Redistribution,Preferences for federal spending on welfare programs / public assistance.
+spend_poor,1.1768506328594828,0.0772417762379888,Redistribution,Preferences for federal spending to aid the poor / anti-poverty programs.
+spend_school,0.8810586440416092,0.07712462290508978,Education,Preferences for federal spending on public schools and K–12 education.
+checks_power,0.22612411791313203,0.04886898880736933,Institutions,Views on checks and balances and whether branches of government should limit one another’s power.
+border_wall,2.303003991399405,0.16992836866400768,Immigration,Support for constructing a barrier/wall at the U.S.–Mexico border.
+trans_bath,1.2761353961334938,0.16121971624036788,LGBTQ,Views on transgender bathroom access policies.
+trans_military,1.205944702582149,0.10412125741158247,LGBTQ,Views on transgender people serving in the U.S. military.
+lg_job,0.6020852406531296,0.08867192495046469,LGBTQ,Views on legal protections against job discrimination for gay/lesbian people.
+lg_marry,0.6020852406531296,0.08867192495046469,LGBTQ,Support for same-sex marriage / marriage rights for gay and lesbian couples.
+lg_refuse_service,1.2430838567764368,0.16566092646777103,LGBTQ,Views on refusing service to same-sex couples.
+police_force,1.0062374111218937,0.05555253530914254,Policing,Support for police use of force / policing practices.
+assist_black,1.6231402407313005,0.1124755074311102,Race,Support for government assistance to Black Americans / addressing racial inequality.
+black_favor,1.344374535593103,0.13561848160317588,Race,Attitudes toward whether Black people should receive favoritism in society/politics.
+diversity,0.8587430860180352,0.07530766594324084,Race,Attitudes toward diversity initiatives and/or the importance of diversity.
+job_gov_guar,1.4789030088036033,0.1054674166877238,Labor,Support for a government-guaranteed job program (public employment guarantee).
+govt_health,1.5561328527325078,0.1246440529287745,Health,"Support for government-provided health insurance (e.g., single payer, public provision)."
+obamacare,2.4081479951825546,0.15163728972845675,Health,Attitudes toward the Affordable Care Act (ACA/‘Obamacare’).
+svc_spend,1.5052731957068144,0.08922335064409087,Redistribution,Preferences for government spending on services (general service provision).
+def_spend,1.0604055025500794,0.08448864216349082,Defense,Preferences for government spending on national defense and the military.
+urban_unrest,1.9199026297033437,0.14762277745110214,Policing,"Concern about urban unrest, protests, and disorder."
+clim_imp,1.5653959624322697,0.11411163018736294,Climate,Importance assigned to climate change as an issue.
+rus_interf,1.7166274214558428,0.15237916655576475,Institutions,Concern about Russian interference in U.S. elections and related political influence operations.
+ft_trans,1.0698822629100653,0.07632831420753981,LGBTQ,Feeling thermometer rating toward transgender people.
+ft_union,0.9630938032563517,0.05761388852004169,Labor,Feeling thermometer rating toward labor unions.
+ft_fem,1.355457368422024,0.07181471479484709,Gender,Feeling thermometer rating toward feminists.
+ft_sci,0.9221256889566428,0.04067301684121747,Institutions,Feeling thermometer rating toward scientists.
+ft_police,1.1062265228992787,0.06313095447862982,Policing,Feeling thermometer rating toward police.
+env_bus,1.5994096722646556,0.10904997782913191,Climate,Tradeoff between environmental protection and business regulation/deregulation.
+ghg_emiss,1.1693563674002938,0.0977970360338509,Climate,Support for regulating greenhouse gas emissions / carbon emissions.
+gun_imp,0.274799396322525,0.06983596791115244,Guns,Importance placed on gun regulation as a political issue.
+mil_force,0.3498960914921568,0.04905991405597025,ForeignPolicy,Support for the use of U.S. military force internationally.
+millionaire_tax,0.91837275641287,0.15652084673306185,Redistribution,Support for taxes targeting millionaires.
+min_wage,1.008874382228358,0.07132627862203375,Labor,Support for raising the minimum wage / minimum-wage policy changes.
+free_trade,0.28447897454823245,0.05959336880961057,Trade,Support for free trade policies and reducing trade barriers.
+intl_trade_job,0.15320911881060134,0.0657185837004392,Trade,Beliefs about international trade’s impact on jobs (job creation/loss from trade).
