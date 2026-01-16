@@ -6,7 +6,7 @@ trump_corr,1.637287924678687,0.09327453248950139,Institutions,Perceptions of cor
 journ_access,0.8341543668842112,0.1040730658623939,Institutions,Support for press/journalist access to government officials and government transparency norms.
 gun_bkg_chk,0.4973398678854416,0.05034428237283212,Guns,Support for background checks on gun purchases (including universal background checks).
 illeg_child,0.9481337519435443,0.07558092205691394,Immigration,Views on how the U.S. should handle children of undocumented immigrants.
-death_pen,0.9994836145770344,0.14727233213826849,Crime,Support for the death penalty/capital punishment for serious crimes.
+death_pen,0.9994836145770344,0.14727233213826849,CrimeAndPolicing,Support for the death penalty/capital punishment for serious crimes.
 abortion,1.2325316489471152,0.13217571381589632,Abortion,Attitudes toward abortion legality and access.
 scotus_abort,1.4133026818161256,0.12051969554350443,Abortion,Views on Supreme Court decisions and judicial intervention related to abortion.
 ar_ban,0.9409382852663171,0.15733752310727628,Guns,Support for banning assault rifles/assault weapons.
@@ -20,28 +20,28 @@ spend_poor,1.1768506328594828,0.0772417762379888,Redistribution,Preferences for 
 spend_school,0.8810586440416092,0.07712462290508978,Education,Preferences for federal spending on public schools and K–12 education.
 checks_power,0.22612411791313203,0.04886898880736933,Institutions,Views on checks and balances and whether branches of government should limit one another’s power.
 border_wall,2.303003991399405,0.16992836866400768,Immigration,Support for constructing a barrier/wall at the U.S.–Mexico border.
-trans_bath,1.2761353961334938,0.16121971624036788,LGBTQ,Views on transgender bathroom access policies.
-trans_military,1.205944702582149,0.10412125741158247,LGBTQ,Views on transgender people serving in the U.S. military.
-lg_job,0.6020852406531296,0.08867192495046469,LGBTQ,Views on legal protections against job discrimination for gay/lesbian people.
-lg_marry,0.6020852406531296,0.08867192495046469,LGBTQ,Support for same-sex marriage / marriage rights for gay and lesbian couples.
-lg_refuse_service,1.2430838567764368,0.16566092646777103,LGBTQ,Views on refusing service to same-sex couples.
-police_force,1.0062374111218937,0.05555253530914254,Policing,Support for police use of force / policing practices.
-assist_black,1.6231402407313005,0.1124755074311102,Race,Support for government assistance to Black Americans / addressing racial inequality.
-black_favor,1.344374535593103,0.13561848160317588,Race,Attitudes toward whether Black people should receive favoritism in society/politics.
-diversity,0.8587430860180352,0.07530766594324084,Race,Attitudes toward diversity initiatives and/or the importance of diversity.
+trans_bath,1.2761353961334938,0.16121971624036788,Transgender,Views on transgender bathroom access policies.
+trans_military,1.205944702582149,0.10412125741158247,Transgender,Views on transgender people serving in the U.S. military.
+lg_job,0.6020852406531296,0.08867192495046469,Lesbian/Gay,Views on legal protections against job discrimination for gay/lesbian people.
+lg_marry,0.6020852406531296,0.08867192495046469,Lesbian/Gay,Support for same-sex marriage / marriage rights for gay and lesbian couples.
+lg_refuse_service,1.2430838567764368,0.16566092646777103,Lesbian/Gay,Views on refusing service to same-sex couples.
+police_force,1.0062374111218937,0.05555253530914254,CrimeAndPolicing,Support for police use of force / policing practices.
+assist_black,1.6231402407313005,0.1124755074311102,Diversity,Support for government assistance to Black Americans / addressing racial inequality.
+black_favor,1.344374535593103,0.13561848160317588,Diversity,Attitudes toward whether Black people should receive favoritism in society/politics.
+diversity,0.8587430860180352,0.07530766594324084,Diversity,Attitudes toward diversity initiatives and/or the importance of diversity.
 job_gov_guar,1.4789030088036033,0.1054674166877238,Labor,Support for a government-guaranteed job program (public employment guarantee).
 govt_health,1.5561328527325078,0.1246440529287745,Health,"Support for government-provided health insurance (e.g., single payer, public provision)."
 obamacare,2.4081479951825546,0.15163728972845675,Health,Attitudes toward the Affordable Care Act (ACA/‘Obamacare’).
 svc_spend,1.5052731957068144,0.08922335064409087,Redistribution,Preferences for government spending on services (general service provision).
-def_spend,1.0604055025500794,0.08448864216349082,Defense,Preferences for government spending on national defense and the military.
-urban_unrest,1.9199026297033437,0.14762277745110214,Policing,"Concern about urban unrest, protests, and disorder."
+def_spend,1.0604055025500794,0.08448864216349082,ForeignPolicy,Preferences for government spending on national defense and the military.
+urban_unrest,1.9199026297033437,0.14762277745110214,CrimeAndPolicing,"Concern about urban unrest, protests, and disorder."
 clim_imp,1.5653959624322697,0.11411163018736294,Climate,Importance assigned to climate change as an issue.
 rus_interf,1.7166274214558428,0.15237916655576475,Institutions,Concern about Russian interference in U.S. elections and related political influence operations.
-ft_trans,1.0698822629100653,0.07632831420753981,LGBTQ,Feeling thermometer rating toward transgender people.
+ft_trans,1.0698822629100653,0.07632831420753981,Transgender,Feeling thermometer rating toward transgender people.
 ft_union,0.9630938032563517,0.05761388852004169,Labor,Feeling thermometer rating toward labor unions.
 ft_fem,1.355457368422024,0.07181471479484709,Gender,Feeling thermometer rating toward feminists.
 ft_sci,0.9221256889566428,0.04067301684121747,Institutions,Feeling thermometer rating toward scientists.
-ft_police,1.1062265228992787,0.06313095447862982,Policing,Feeling thermometer rating toward police.
+ft_police,1.1062265228992787,0.06313095447862982,CrimeAndPolicing,Feeling thermometer rating toward police.
 env_bus,1.5994096722646556,0.10904997782913191,Climate,Tradeoff between environmental protection and business regulation/deregulation.
 ghg_emiss,1.1693563674002938,0.0977970360338509,Climate,Support for regulating greenhouse gas emissions / carbon emissions.
 gun_imp,0.274799396322525,0.06983596791115244,Guns,Importance placed on gun regulation as a political issue.
@@ -50,3 +50,15 @@ millionaire_tax,0.91837275641287,0.15652084673306185,Redistribution,Support for 
 min_wage,1.008874382228358,0.07132627862203375,Labor,Support for raising the minimum wage / minimum-wage policy changes.
 free_trade,0.28447897454823245,0.05959336880961057,Trade,Support for free trade policies and reducing trade barriers.
 intl_trade_job,0.15320911881060134,0.0657185837004392,Trade,Beliefs about international trade’s impact on jobs (job creation/loss from trade).
+ft_asian,0.22286227659990934,0.04334165895962361,Diversity,Feeling thermometer rating toward Asian-Americans.
+biden_foreign,1.7006408417769563,0.17360291197826483,ForeignPolicy,Approval of Joe Biden's handling of foreign relations.
+limit_imports,1.1643918502394552,0.14564146228359734,Trade,Support for placing new limits on imports from other countries.
+immig_levels,0.6996576886513267,0.08859646779341646,Immigration,Opinion on whether the number of immigrants permitted to come to the U.S. should be increased or decreased.
+biden_crime,1.923465343576683,0.16053349924514007,CrimeAndPolicing,Approval of Joe Biden's handling of crime.
+affirm_action,1.082132631958593,0.0902132043575914,Education,Favor or oppose affirmative action in university admissions.
+health_spend,0.9371156496175461,0.08454619452676099,Health,Preference for government spending to help people pay for health insurance.
+dei_college,1.3405196353754412,0.10708509124775974,Education,"Views on Diversity, Equity, and Inclusion (DEI) policies on college campuses."
+discuss_race,0.5169938012246083,0.08130642762543194,Diversity,Frequency of discussing race or racial issues with children.
+israel_aid,0.6068559350224688,0.11704168922228378,ForeignPolicy,Favor or oppose the U.S. providing military assistance to Israel.
+vote_denied,0.5346239965058317,0.05732148890456676,Elections,Perceived frequency of how often people are denied the right to vote.
+crime_spend,0.4507288159507127,0.20362134371204355,CrimeAndPolicing,Preference for federal spending levels on dealing with crime.
