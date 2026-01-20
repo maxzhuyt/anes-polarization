@@ -8,7 +8,7 @@ The analysis examines how different policy issues vary in public opinion and how
 
 ## Data Source
 
-- **Dataset**: ANES 2020 Time Series Study
+- **Dataset**: ANES 2020 and 2024 Time Series Study
 - **Raw Data**: `data/anes_timeseries_2020_csv_20220210.csv`
 - **Codebook**: `data/anes_timeseries_2020_userguidecodebook_20220210.txt`
 
@@ -17,7 +17,7 @@ The analysis examines how different policy issues vary in public opinion and how
 ### Selection Criteria
 
 Policy variables were selected based on the following criteria:
-1. **Closed-ended questions** with defined response scales (excludes open-ended and restricted access variables)
+1. **Closed-ended questions** with defined response scales 
 2. **Substantive policy content** covering major political issues
 3. **Non-demographic** variables (ideology and party ID are tracked separately)
 
@@ -25,27 +25,8 @@ Policy variables were selected based on the following criteria:
 
 All policy variables were transformed to a consistent directional scale where possible:
 
-1. **Simple Directional Mapping**: Variables with clear liberal/conservative direction were mapped to signed scales (e.g., -1 for conservative, +1 for liberal)
+**Simple Directional Mapping**: Variables with clear liberal/conservative direction were mapped to signed scales (e.g., -1 for conservative, +1 for liberal)
 
-2. **Direction × Strength Variables**: Questions that captured both position and intensity were combined into signed strength scales:
-   - Direction codes (favor/oppose) mapped to signs (-1, 0, +1)
-   - Strength codes (strongly/moderately/a little) mapped to magnitudes (3, 2, 1)
-   - Final score = Direction × Strength (range: -3 to +3)
-
-3. **Ordinal Scales**: Multi-point scales (4pt, 5pt, 7pt) were preserved in their original ordinal structure
-
-4. **Missing Data Handling**: Standard ANES missing codes (-9 to -1, 99) were converted to NaN
-
-### Policy Categories Included
-
-- **Social Issues**: Abortion, LGBTQ rights, gay marriage, transgender bathroom policy
-- **Immigration**: Border wall, birthright citizenship, general immigration policy
-- **Environment**: Climate change beliefs, environmental regulation
-- **Guns**: Background checks, gun regulations
-- **Health Care**: Obamacare approval, vaccine requirements, millionaire tax
-- **Economic**: Jobs guarantee, aid to Black Americans, minimum wage, urban unrest
-- **Criminal Justice**: Death penalty
-- **Trade & Defense**: Free trade attitudes, military force
 
 ### Normalization
 
@@ -83,15 +64,6 @@ Polarization = |μ_Republican - μ_Democrat|
 7. LGBTQ rights
 8. Economic redistribution
 
-### 3. Polarization vs. Variance
-
-![Polarization vs. Variance](output.png)
-
-The scatter plot reveals the relationship between overall disagreement (variance) and partisan disagreement (polarization):
-
-- **High variance + high polarization**: Issues where both parties have diverse opinions AND strong partisan differences
-- **Low variance + high polarization**: Issues where parties have distinct but internally unified positions
-- **High variance + low polarization**: Issues with diverse opinions that don't align with party lines
 
 ## Files
 
@@ -117,7 +89,6 @@ Run the cells in `main.ipynb` sequentially to:
 1. Extract questions from the ANES codebook
 2. Clean and transform policy variables
 3. Calculate variance and polarization metrics
-4. Generate visualizations
 
 ## Notes
 
@@ -176,7 +147,7 @@ Uses generic ideological labels instead of specific politicians.
 "Imagine you are an American voter who identifies as extremely conservative. What is your view on climate change?"
 ```
 
-## Understanding `N_PER_LEVEL`
+## `N_PER_LEVEL`
 
 The `N_PER_LEVEL` parameter controls how many **different prompt templates** are used per ideology level per topic.
 
@@ -192,23 +163,6 @@ Instead, we cycle through 20 different prompt phrasings:
 ...
 ```
 
-This creates meaningful variation: the model processes different surface forms while the ideological content remains constant.
-
-### How it works (per topic)
-
-For each topic (e.g., "abortion"), we generate:
-
-| Ideology Level | Label | Prompt Templates Used |
-|----------------|-------|----------------------|
-| 1 | "extremely liberal" | N_PER_LEVEL different phrasings |
-| 2 | "liberal" | N_PER_LEVEL different phrasings |
-| 3 | "slightly liberal" | N_PER_LEVEL different phrasings |
-| 4 | "moderate" | N_PER_LEVEL different phrasings (excluded from metrics) |
-| 5 | "slightly conservative" | N_PER_LEVEL different phrasings |
-| 6 | "conservative" | N_PER_LEVEL different phrasings |
-| 7 | "extremely conservative" | N_PER_LEVEL different phrasings |
-
-**Total prompts per topic** = 7 × N_PER_LEVEL (each unique)
 
 ### Example
 
@@ -224,22 +178,6 @@ With `N_PER_LEVEL=10` for the topic "abortion":
 "Imagine you are an American voter who identifies as liberal. What is your view on abortion?"
 ...
 ```
-
-### Choosing N_PER_LEVEL
-
-| Value | Prompts/Topic | Notes |
-|-------|---------------|-------|
-| 1 | 7 | Single template per level (minimal) |
-| 10 | 70 | Good coverage of template variants |
-| 20 | 140 | Uses all 20 built-in templates once each |
-
-**Note**: With 20 built-in templates, values above 20 will cycle and repeat templates.
-
-For metrics calculation, levels 1-3 are grouped as "liberal" (mapped to party code 100) and levels 5-7 as "conservative" (mapped to party code 200). Moderates (level 4) are excluded.
-
-With `N_PER_LEVEL=10`:
-- **30 liberal samples** (3 levels × 10 templates)
-- **30 conservative samples** (3 levels × 10 templates)
 
 ## Experimenting with Prompt Templates
 
