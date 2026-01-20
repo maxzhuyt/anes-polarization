@@ -230,6 +230,29 @@ Mahalanobis distance is preferred because it:
 2. **Scale-invariant** - Not affected by different scales across activation dimensions
 3. **Matches ANES methodology** - ANES polarization is also computed using Mahalanobis distance between party group centroids
 
+### ANES Population Weighting (Ideology Prompts)
+
+For ideology prompts, samples are weighted by the ANES population distribution of ideological positions. This ensures that the Mahalanobis distance calculation reflects real-world population proportions rather than uniform sampling.
+
+**ANES 2020+2024 Combined Ideology Distribution:**
+
+| Level | Label | Count | Proportion |
+|-------|-------|-------|------------|
+| 1 | Extremely liberal | 619 | 5.25% |
+| 2 | Liberal | 2,029 | 17.21% |
+| 3 | Slightly liberal | 1,461 | 12.39% |
+| 4 | Moderate | 3,005 | 25.49% *(excluded)* |
+| 5 | Slightly conservative | 1,415 | 12.00% |
+| 6 | Conservative | 2,522 | 21.39% |
+| 7 | Extremely conservative | 737 | 6.25% |
+
+**How weighting works:**
+1. **Uniform sampling**: Each ideology level gets the same number of prompt templates (`N_PER_LEVEL`)
+2. **Weighted metrics**: During Mahalanobis calculation, each sample is weighted by its ideology level's ANES proportion
+3. **Weighted mean/covariance**: The `weighted_mean()` and `weighted_cov()` functions apply these weights to compute population-representative group centroids and covariance matrices
+
+**CLI flag**: Weighting is enabled by default. Use `--no-anes-weights` to disable.
+
 ## LLM Output Format
 
 Both pipelines output a DataFrame with one row per topic:
