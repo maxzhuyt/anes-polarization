@@ -48,22 +48,15 @@ Variance measures overall disagreement on each issue across all respondents, ind
 
 ### 2. Policy Polarization by Party
 
-Polarization is calculated as the absolute difference between Republican and Democratic mean positions:
+Polarization is measured using **Mahalanobis distance** between Republican and Democratic response distributions. This accounts for variance and covariance structure, providing a more robust measure than simple mean differences.
 
-```
-Polarization = |μ_Republican - μ_Democrat|
-```
-
-**Top 10 Most Polarized Policies:**
-1. Border wall
-2. Abortion-related issues
-3. Gun regulations
-4. Climate/environment
-5. Obamacare approval
-6. Immigration policy
-7. LGBTQ rights
-8. Economic redistribution
-
+**Top Polarized Policy Areas:**
+- Border wall / Immigration
+- Abortion-related issues
+- Biden approval (economy, crime, foreign policy)
+- Climate/environment
+- Obamacare / Health care
+- LGBTQ rights
 
 ## Files
 
@@ -71,7 +64,6 @@ Polarization = |μ_Republican - μ_Democrat|
 - `data/policy_clean.csv` - Cleaned and transformed policy dataset
 - `data/extracted_questions.txt` - Extracted questions from ANES codebook
 - `policy_questions.md` - List of policy questions analyzed
-- `ideology_partisan_questions.md` - Ideology and partisan identity questions
 
 ## Requirements
 
@@ -211,6 +203,33 @@ df = run_ideology_pipeline(
 - `opinion`: "As someone who is {ideology}, what do you think about {topic}?"
 - `agree`: "You are a {ideology} American. Do you agree or disagree with policies related to {topic}? Explain."
 
+## Polarization Metrics
+
+We compute multiple metrics to measure separation between liberal and conservative activations in each attention head. **Mahalanobis distance is the primary metric** used for correlation with ANES survey polarization.
+
+### Primary Metric
+
+| Metric | Description | Interpretation |
+|--------|-------------|----------------|
+| **Mahalanobis** | Mahalanobis distance between group centroids | Higher = greater separation between liberal/conservative activations, accounting for covariance structure |
+
+### Secondary Metrics
+
+| Metric | Description | Interpretation |
+|--------|-------------|----------------|
+| **Davies-Bouldin** | Davies-Bouldin clustering index | Lower = better cluster separation (we use reciprocal for consistency) |
+| **Total_Dispersion** | Sum of eigenvalues (total variance) | Higher = more variance in activation space |
+| **PC1_Ratio** | Explained variance ratio of PC1 | Higher = activations lie along a single dimension |
+| **Intrinsic_Dim** | Intrinsic dimensionality (participation ratio) | Lower = activations concentrated in fewer dimensions |
+| **Polarization_CoG** | Center of gravity across layers | Higher = polarization signal in later layers |
+
+### Why Mahalanobis?
+
+Mahalanobis distance is preferred because it:
+1. **Accounts for covariance** - Unlike Euclidean distance, it considers how features co-vary
+2. **Scale-invariant** - Not affected by different scales across activation dimensions
+3. **Matches ANES methodology** - ANES polarization is also computed using Mahalanobis distance between party group centroids
+
 ## LLM Output Format
 
 Both pipelines output a DataFrame with one row per topic:
@@ -218,7 +237,7 @@ Both pipelines output a DataFrame with one row per topic:
 | Column | Description |
 |--------|-------------|
 | `Topic` | Topic key (e.g., "abortion", "gun_bkg_chk") |
-| `Avg_Mahalanobis` | Average Mahalanobis distance across all heads |
+| `Avg_Mahalanobis` | Average Mahalanobis distance across all heads **(primary metric)** |
 | `Max_Mahalanobis` | Maximum Mahalanobis distance |
 | `Avg_Total_Dispersion` | Average total variance |
 | `Avg_PC1_Ratio` | Average explained variance of PC1 |
