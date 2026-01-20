@@ -275,6 +275,25 @@ For cross-area correlation analysis, we select **one representative question per
 - **Labor (`min_wage`)**: The minimum wage question is narrow compared to alternatives like job guarantee (`job_gov_guar`) or paid parental leave (`paid_leave`). None of the labor questions fully covers the breadth of labor policy issues.
 - **Institutions (`checks_power`)**: No single question captures all institutional concerns (corruption, press freedom, scientific trust). Checks of power was selected as the most fundamental institutional principle.
 
+## Correlation Results
+
+### LLM vs ANES Polarization (Mahalanobis Distance)
+
+| Dataset | Prompt Type | Pearson r | Spearman ρ |
+|---------|-------------|-----------|------------|
+| **All 65 Issues** | Politician | 0.304 | 0.344 |
+| **All 65 Issues** | Ideology | 0.115 | 0.141 |
+| **18 Representative Issues** | Politician | **0.597** | **0.653** |
+| **18 Representative Issues** | Ideology | 0.090 | -0.038 |
+
+### Key Findings
+
+1. **Politician prompts outperform ideology prompts** - Using real politician names produces LLM activations that better correlate with human survey polarization.
+
+2. **Representative issue selection improves correlation** - Selecting one broad issue per policy area (18 topics) nearly doubles the Pearson correlation (0.304 → 0.597) compared to using all 65 issues.
+
+3. **Ideology prompts show weak/no correlation** - Generic ideological labels ("extremely liberal", "conservative", etc.) do not produce activation patterns that correlate with ANES polarization.
+
 ## Comparing LLM Results with ANES
 
 ```python
