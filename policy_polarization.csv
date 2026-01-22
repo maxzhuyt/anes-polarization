@@ -18,7 +18,7 @@ spend_border,1.5507668598948603,0.11300917245999198,Immigration,Preferences for 
 spend_welfare,1.2748138341444155,0.09492745112783837,Redistribution,Preferences for federal spending on welfare programs / public assistance.
 spend_poor,1.1768506328594828,0.0772417762379888,Redistribution,Preferences for federal spending to aid the poor / anti-poverty programs.
 spend_school,0.8810586440416092,0.07712462290508978,Education,Preferences for federal spending on public schools and K–12 education.
-checks_power,0.22612411791313203,0.04886898880736933,Institutions,Views on checks and balances and whether branches of government should limit one another’s power.
+checks_power,0.22612411791313203,0.04886898880736933,Institutions,Views on checks and balances and whether branches of government should limit one another's power.
 border_wall,2.303003991399405,0.16992836866400768,Immigration,Support for constructing a barrier/wall at the U.S.–Mexico border.
 trans_bath,1.2761353961334938,0.16121971624036788,Transgender,Views on transgender bathroom access policies.
 trans_military,1.205944702582149,0.10412125741158247,Transgender,Views on transgender people serving in the U.S. military.
@@ -31,7 +31,7 @@ black_favor,1.344374535593103,0.13561848160317588,Diversity,Attitudes toward whe
 diversity,0.8587430860180352,0.07530766594324084,Diversity,Attitudes toward diversity initiatives and/or the importance of diversity.
 job_gov_guar,1.4789030088036033,0.1054674166877238,Labor,Support for a government-guaranteed job program (public employment guarantee).
 govt_health,1.5561328527325078,0.1246440529287745,Health,"Support for government-provided health insurance (e.g., single payer, public provision)."
-obamacare,2.4081479951825546,0.15163728972845675,Health,Attitudes toward the Affordable Care Act (ACA/‘Obamacare’).
+obamacare,2.4081479951825546,0.15163728972845675,Health,Attitudes toward the Affordable Care Act (ACA/'Obamacare').
 svc_spend,1.5052731957068144,0.08922335064409087,Redistribution,Preferences for government spending on services (general service provision).
 def_spend,1.0604055025500794,0.08448864216349082,ForeignPolicy,Preferences for government spending on national defense and the military.
 urban_unrest,1.9199026297033437,0.14762277745110214,CrimeAndPolicing,"Concern about urban unrest, protests, and disorder."
@@ -49,7 +49,7 @@ mil_force,0.3498960914921568,0.04905991405597025,ForeignPolicy,Support for the u
 millionaire_tax,0.91837275641287,0.15652084673306185,Redistribution,Support for taxes targeting millionaires.
 min_wage,1.008874382228358,0.07132627862203375,Labor,Support for raising the minimum wage / minimum-wage policy changes.
 free_trade,0.28447897454823245,0.05959336880961057,Trade,Support for free trade policies and reducing trade barriers.
-intl_trade_job,0.15320911881060134,0.0657185837004392,Trade,Beliefs about international trade’s impact on jobs (job creation/loss from trade).
+intl_trade_job,0.15320911881060134,0.0657185837004392,Trade,Beliefs about international trade's impact on jobs (job creation/loss from trade).
 ft_asian,0.22286227659990934,0.04334165895962361,Diversity,Feeling thermometer rating toward Asian-Americans.
 biden_foreign,1.7006408417769563,0.17360291197826483,ForeignPolicy,Approval of Joe Biden's handling of foreign relations.
 limit_imports,1.1643918502394552,0.14564146228359734,Trade,Support for placing new limits on imports from other countries.
@@ -62,3 +62,6 @@ discuss_race,0.5169938012246083,0.08130642762543194,Diversity,Frequency of discu
 israel_aid,0.6068559350224688,0.11704168922228378,ForeignPolicy,Favor or oppose the U.S. providing military assistance to Israel.
 vote_denied,0.5346239965058317,0.05732148890456676,Elections,Perceived frequency of how often people are denied the right to vote.
 crime_spend,0.4507288159507127,0.20362134371204355,CrimeAndPolicing,Preference for federal spending levels on dealing with crime.
+biden_economy,2.0664098789469847,0.17307741321972667,Economy,Approval of Joe Biden's handling of the economy.
+biden_abortion,1.6536779287241834,0.18090090465517517,Abortion,Approval of Joe Biden's handling of abortion.
+biden_immigration,1.7702965548800753,0.14831472084059114,Immigration,Approval of Joe Biden's handling of immigration.
