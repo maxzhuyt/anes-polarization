@@ -314,35 +314,17 @@ This yields a score in [0, 1] where higher values indicate greater partisan disa
 
 | Survey | Sample | Pearson r |
 |--------|--------|-----------|
-| **ANES** | All 65 questions | 0.33 |
-| **ANES** | 18 broad questions (1 per area) | 0.60 |
-| **GSS** | 120 questions | 0.60 |
-| **GSS** | 35 policy areas (aggregated) | 0.60 |
+| **ANES** | All 65 questions | 0.334 |
+| **ANES** | 18 broad questions (1 per area) | 0.652 |
+| **GSS** | 120 questions | 0.598 |
+| **GSS** | 35 policy areas (aggregated) | 0.598 |
 
-### Example High-Polarization Topics
-
-| Area | Example Question | Survey Polarization |
-|------|------------------|---------------------|
-| Immigration | Border wall construction | 0.57 |
-| Abortion | General abortion legality | 0.46 |
-| Race | Explanations for racial inequality | 0.56 |
-| Economy | Biden's handling of the economy | 0.51 |
-| Health | Government-provided health insurance | 0.39 |
-
-### Example Low-Polarization Topics
-
-| Area | Example Question | Survey Polarization |
-|------|------------------|---------------------|
-| Trade | Impact of international trade on jobs | 0.04 |
-| Social Trust | Can most people be trusted? | 0.002 |
-| Tolerance | Allow pro-homosexual speech | 0.05 |
-| Foreign Policy | Military spending levels | 0.06 |
 
 ### Key Findings
 
-1. **Politician prompts outperform ideology prompts** - Using real politician names produces LLM activations that better correlate with human survey polarization.
+1. **Politician prompts outperform Simulation prompts** - Using real politician names produces LLM activation space that better correlate with simulated human survey polarization (likely not enough demographic features for the simulation to be good).
 
-2. **Broad question selection improves correlation** - Selecting one broad issue per policy area (e.g., "abortion" over "Biden's handling of abortion") nearly doubles correlation (0.33 → 0.60).
+2. **Broad question selection improves correlation** - Selecting one broad issue per policy area (e.g., "feeling towards transgender" over "transgender bathroom issue") nearly doubles correlation (0.33 → 0.65).
 
 3. **GSS replicates ANES findings** - Both surveys yield ~0.60 correlation when properly aggregated, validating the measurement approach.
 
