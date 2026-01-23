@@ -298,24 +298,53 @@ For cross-area correlation analysis, we select **one representative question per
 - **Labor (`min_wage`)**: The minimum wage question is narrow compared to alternatives like job guarantee (`job_gov_guar`) or paid parental leave (`paid_leave`). None of the labor questions fully covers the breadth of labor policy issues.
 - **Institutions (`checks_power`)**: No single question captures all institutional concerns (corruption, press freedom, scientific trust). Checks of power was selected as the most fundamental institutional principle.
 
-## Correlation Results
+## Validation Results Summary
 
-### LLM vs ANES Polarization (Mahalanobis Distance)
+### How We Measure Survey Polarization
 
-| Dataset | Prompt Type | Pearson r | Spearman ρ |
-|---------|-------------|-----------|------------|
-| **All 65 Issues** | Politician | 0.304 | 0.344 |
-| **All 65 Issues** | Ideology | 0.115 | 0.141 |
-| **18 Representative Issues** | Politician | **0.597** | **0.653** |
-| **18 Representative Issues** | Ideology | 0.090 | -0.038 |
+Survey polarization is computed as the **normalized distance** between Democrat and Republican responses:
+
+1. Min-max normalize each question's responses to [0, 1]
+2. Compute mean response for Democrats (μ_D) and Republicans (μ_R)
+3. Polarization = |μ_R − μ_D|
+
+This yields a score in [0, 1] where higher values indicate greater partisan disagreement.
+
+### LLM vs Survey Correlation
+
+| Survey | Sample | Pearson r |
+|--------|--------|-----------|
+| **ANES** | All 65 questions | 0.33 |
+| **ANES** | 18 broad questions (1 per area) | 0.60 |
+| **GSS** | 120 questions | 0.60 |
+| **GSS** | 35 policy areas (aggregated) | 0.60 |
+
+### Example High-Polarization Topics
+
+| Area | Example Question | Survey Polarization |
+|------|------------------|---------------------|
+| Immigration | Border wall construction | 0.57 |
+| Abortion | General abortion legality | 0.46 |
+| Race | Explanations for racial inequality | 0.56 |
+| Economy | Biden's handling of the economy | 0.51 |
+| Health | Government-provided health insurance | 0.39 |
+
+### Example Low-Polarization Topics
+
+| Area | Example Question | Survey Polarization |
+|------|------------------|---------------------|
+| Trade | Impact of international trade on jobs | 0.04 |
+| Social Trust | Can most people be trusted? | 0.002 |
+| Tolerance | Allow pro-homosexual speech | 0.05 |
+| Foreign Policy | Military spending levels | 0.06 |
 
 ### Key Findings
 
 1. **Politician prompts outperform ideology prompts** - Using real politician names produces LLM activations that better correlate with human survey polarization.
 
-2. **Representative issue selection improves correlation** - Selecting one broad issue per policy area (18 topics) nearly doubles the Pearson correlation (0.304 → 0.597) compared to using all 65 issues.
+2. **Broad question selection improves correlation** - Selecting one broad issue per policy area (e.g., "abortion" over "Biden's handling of abortion") nearly doubles correlation (0.33 → 0.60).
 
-3. **Ideology prompts show weak/no correlation** - Generic ideological labels ("extremely liberal", "conservative", etc.) do not produce activation patterns that correlate with ANES polarization.
+3. **GSS replicates ANES findings** - Both surveys yield ~0.60 correlation when properly aggregated, validating the measurement approach.
 
 ## Comparing LLM Results with ANES
 
