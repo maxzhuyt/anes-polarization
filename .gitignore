@@ -1,0 +1,43 @@
+# Hidden files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+*.egg
+
+# Intermediate results
+llm_results/
+*.pkl
+*.pickle
+
+# Generated images and outputs
+*.png
+*.html
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Environment
+.env
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Large data files (uncomment if needed)
+# data/
