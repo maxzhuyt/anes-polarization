@@ -1,0 +1,68 @@
+VariableName,Description,SurveyQuestion,Href
+attend,how often r attends religious services,"How often do you attend religious services? (USE CATEGORIES AS PROBES, IF NECESSARY.)",/variables/294/vshow
+compuse,r use computer,"Do you personally ever use a computer at home, at work, or at some other location?",/variables/2378/vshow
+emailhr,email hours per week,About how many minutes or hours per week do you spend sending and answering electronic mail or e-mail?,/variables/2382/vshow
+emailmin,email minutes per week,About how many minutes or hours per week do you spend sending and answering electronic mail or e-mail?,/variables/2381/vshow
+evcrack,r ever use crack cocaine,"Have you ever, even once, used “crack” cocaine in chunk or rock form?",/variables/5072/vshow
+evidu,r ever inject drugs,"Have you ever, even once, taken any drugs by injection with a needle (like heroin, cocaine, amphetamines, or steroids). Do not include anything you took under a doctor’s orders.",/variables/5070/vshow
+evpaidsx,ever have sex paid for or being paid since 18,"Thinking about the time since your 18th birthday, have you ever had sex with a person you paid or who paid you for sex?",/variables/5066/vshow
+evstray,have sex other than spouse while married,Have you ever had sex with someone other than your husband or wife while you were married?,/variables/5067/vshow
+fear,afraid to walk at night in neighborhood,"Is there any area right around here--that is, within a mile--where you would be afraid to walk alone at night?",/variables/675/vshow
+grndemo,protested for envir issue,"In the last five years, have you… C. ...taken part in a protest or demonstration about an environmental issue?",/variables/4776/vshow
+grngroup,member of envir group,Are you a member of any group whose main aim is to preserve or protect the environment?,/variables/4773/vshow
+grnmoney,give money to envir group,"In the last five years, have you… B. ...given money to an environmental group?",/variables/4775/vshow
+grnsign,sign petition on envir issue,"In the last five years, have you… A. ...signed a petition about an environmental issue?",/variables/4774/vshow
+hivtest,have you ever been tested for hiv,Have you ever been tested for HIV? Do not count tests you may have had as part of a blood donation. Include oral test (where they take a swab from your mouth).,/variables/5074/vshow
+hrsrelax,hours per day r have to relax,"After an average work day, about how many hours do you have to relax or pursue activities that you enjoy?",/variables/2772/vshow
+hunt,does r or spouse hunt,A. Do you (or does your [husband/wife]) go hunting? CIRCLE ONLY ONE CODE.,/variables/688/vshow
+news,how often does r read newspaper,"How often do you read the newspaper--every day, a few times a week, once a week, less than once a week, or never?",/variables/690/vshow
+nobuygrn,how often avoid products,K3. And how often do you avoid buying certain products for environmental reasons?,/variables/4815/vshow
+owngun,have gun in home,Do you happen to have in your home (IF HOUSE: or garage) any guns or revolvers?,/variables/679/vshow
+partners,how many sex partner's r had in last year,"How many sex partners have you had in the last 12 months? As of 2024, PARTNERS has been recoded to only account for 0 to 11+ partners and has been slightly adjusted to help protect confidentiality. Please see the 2024 codebook for more information.The original PARTNERS containing data from 1988 to 2022 has been renamed PARTNERS_8822.",/variables/5049/vshow
+partnrs5,how many sex partner's r had in last 5 years,"Now think about the past five years--the time since February/March [1999], and including the past 12 months, how many sex partners have you had in that five year period?",/variables/5064/vshow
+pistol,pistol or revolver in home,"Do you happen to have in your home (IF HOUSE: or garage) any guns or revolvers? A. IF YES: Is it a pistol, shotgun, rifle, or what? CODE ALL THAT APPLY. [Coded if Pistol]",/variables/680/vshow
+pray,how often does r pray,About how often do you pray? USE CATEGORIES AS PROBES.,/variables/315/vshow
+recycle,recycle cans bottles,A. How often do you make a special effort to sort glass or cans or plastic or papers and so on for recycling?,/variables/4769/vshow
+relactiv,how often does r take part in relig activities,How often do you take part in the activities and organizations of a church or place of worship other than attending services?,/variables/4677/vshow
+rfamlook,hours r spends looking after family members,"A. On average, how many hours a week do you spend looking after family members (e.g. children, elderly, ill or disabled family members)?",/variables/4483/vshow
+rhhwork,how many hours a week does r spend on hh work,"A. On average, how many hours a week do you personally spend on household work, not including childcare and leisure time activities?",/variables/4435/vshow
+rifle,rifle in home,"Do you happen to have in your home (IF HOUSE: or garage) any guns or revolvers? A. IF YES: Is it a pistol, shotgun, rifle, or what? CODE ALL THAT APPLY. [Coded if rifle]",/variables/682/vshow
+rowngun,does gun belong to r,Do you happen to have in your home (IF HOUSE: or garage) any guns or revolvers? B. Do any of these guns personally belong to you?,/variables/683/vshow
+sexfreq,frequency of sex during last year,About how often did you have sex during the last 12 months?,/variables/5057/vshow
+shotgun,shotgun in home,"Do you happen to have in your home (IF HOUSE: or garage) any guns or revolvers? A. IF YES: Is it a pistol, shotgun, rifle, or what? CODE ALL THAT APPLY. [Coded if shotgun]",/variables/681/vshow
+slpprblm,trouble sleeping last 12 months,"B. During the past 12 months, how often have you had trouble going to sleep or staying asleep?",/variables/2837/vshow
+socbar,spend evening at bar,Would you use this card and tell me which answer comes closest to how often you do the following things… D. Go to a bar or tavern?,/variables/524/vshow
+socfrend,spend evening with friends,Would you use this card and tell me which answer comes closest to how often you do the following things… C. Spend a social evening with friends who live outside the neighborhood?,/variables/523/vshow
+socommun,spend evening with neighbor,Would you use this card and tell me which answer comes closest to how often you do the following things… B. Spend a social evening with someone who lives in your neighborhood?,/variables/522/vshow
+socrel,spend evening with relatives,Would you use this card and tell me which answer comes closest to how often you do the following things… A. Spend a social evening with relatives?,/variables/521/vshow
+stress12,stress management program last 12 months,"In the past 12 months, have you participated in any of these stress management or stress reduction programs?",/variables/2841/vshow
+tvhours,hours per day watching tv,"On the average day, about how many hours do you personally watch television?",/variables/691/vshow
+usewww,r use www other than email,"Other than for e-mail, do you ever use the Internet or World Wide Web? [INTERVIEWER: TREAT THESE AS THE SAME]",/variables/2383/vshow
+webmob,r uses home internet through mobile device,"B. Do you have access to the Internet or World Wide Web in your home through a Internet-enabled mobile device like a smart phone, PDA, or BlackBerry?",/variables/2380/vshow
+wrkhome,how often r works at home,How often do you work at home as part of your job?,/variables/2767/vshow
+wrksched,usual work schedule,Which of the following best describes your usual work schedule?,/variables/2763/vshow
+wwwhr,www hours per week,"Not counting e-mail, about how many minutes or hours per week Do you use the Web? (Include time you spend visiting regular web sites and time spent using interactive Internet services like chat rooms, Usenet groups, discussion forums, bulletin boards, and the like.) A. Hours per week?",/variables/2384/vshow
+wwwmin,www minutes per week,"Not counting e-mail, about how many minutes or hours per week Do you use the Web? (Include time you spend visiting regular web sites and time spent using interactive Internet services like chat rooms, Usenet groups, discussion forums, bulletin boards, and the like.) B. Minutes per week?",/variables/2385/vshow
+xmovie,seen x-rated movie in last year,A. Have you seen an X-rated movie in the last year?,/variables/641/vshow
+condom,used condom last time,"The last time you had sex, was a condom used? By ""sex"" we mean vaginal, oral, or anal sex.",/variables/5068/vshow
+cooking1,who in household prepares the meals,In your household who does the following things...? F. Prepares the meals?,/variables/4434/vshow
+helpoth,to help others,"If you had to choose, which thing on this list would you pick as the most important for a child to learn to prepare him or her for life? [INTERVIEWER: READ CHOICES] A. Which comes next in importance? B. Which comes third? C. Which comes fourth? 5. To help others when they need help",/variables/517/vshow
+hhclean1,who does household cleaning,"In your household who does the following things...? Is it always you, usually you, about equal or both together, usually your [spouse/partner], always your [spouse/partner], or by a third person? Does the household cleaning?",/variables/4473/vshow
+laundry1,who in household does laundry,In your household who does the following things...? A. Does the laundry?,/variables/4429/vshow
+obey,to obey,"If you had to choose, which thing on this list would you pick as the most important for a child to learn to prepare him or her for life? [INTERVIEWER: READ CHOICES] A. Which comes next in importance? B. Which comes third? C. Which comes fourth? 1. To obey",/variables/513/vshow
+popular,to be well liked or popular,"If you had to choose, which thing on this list would you pick as the most important for a child to learn to prepare him or her for life? [INTERVIEWER: READ CHOICES] A. Which comes next in importance? B. Which comes third? C. Which comes fourth? 2. To be well-liked or popular",/variables/514/vshow
+reborn,has r ever had a 'born again' experience,"Would you say you have been ""born again"" or have had a ""born again"" experience -- that is, a turning point in your life when you committed yourself to Christ?",/variables/1077/vshow
+relexp,have religious experience changed life,Did you ever have a religious or spiritual experience that changed your life?,/variables/2122/vshow
+savesoul,tried to convince others to accept jesus,Have you ever tried to encourage someone to believe in Jesus Christ or to accept Jesus Christ as his or her savior?,/variables/1078/vshow
+shop1,who in household shops for groceries,In your household who does the following things...? D. Shops for groceries?,/variables/4432/vshow
+spanking,favor spanking to discipline child,"Do you strongly agree, agree, disagree, or strongly disagree that it is sometimes necessary to discipline a child with a good, hard spanking?",/variables/646/vshow
+thnkself,to think for ones self,"If you had to choose, which thing on this list would you pick as the most important for a child to learn to prepare him or her for life? [INTERVIEWER: READ CHOICES] A. Which comes next in importance? B. Which comes third? C. Which comes fourth? 3. To think for himself or herself",/variables/515/vshow
+vetyears,years in armed forces,Have you ever been on active duty for military training or service for two consecutive months or more? IF YES: What was your total time on active duty?,/variables/5285/vshow
+workhard,to work hard,"If you had to choose, which thing on this list would you pick as the most important for a child to learn to prepare him or her for life? [INTERVIEWER: READ CHOICES] A. Which comes next in importance? B. Which comes third? C. Which comes fourth? 4. To work hard",/variables/516/vshow
+wrkgovt1,govt employee,"Are/were you employed by the government? (Please consider federal, state, or local government.)",/variables/7432/vshow
+wrkslf,r self-emp or works for somebody,"A. What kind of work do you (did you normally) do? That is, what (is/was) your job called? OCCUPATION: [See REMARKS] B. What (do/did) you actually do in that job? Tell me, what (are/were) some of your main duties? C. What kind of place (do/did) you work for? INDUSTRY: [See REMARKS] D. What (do/did) they (make/do)? E. (Are/Were) you self employed or (do/did) you work for someone else? F. (Are/Were) you employed by the federal, state or local government or by a private employer (including non-profit organizations)? G. About how much time (does/did) it usually take you to travel to work - about how many minutes?",/variables/9/vshow
+esop,r is member of esop,A. Are you a member of an Employee Stock Ownership Plan commonly called an ESOP?,/variables/3561/vshow
+helpful,people helpful or looking out for selves,"Would you say that most of the time people try to be helpful, or that they are mostly just looking out for themselves?",/variables/439/vshow
+union,does r or spouse belong to union,Do you (or does your spouse) belong to a labor union?,/variables/584/vshow
+vote16,did r vote in 2016 presidential election,"In 2016, you remember that Clinton ran for President on the Democratic ticket against Trump for the Republicans. Do you remember for sure whether or not you voted in that election?",/variables/7089/vshow
+cantrust,can people be trusted,"Generally speaking, would you say that most people can be trusted or that you can't be too careful in dealing with people?",/variables/4686/vshow
