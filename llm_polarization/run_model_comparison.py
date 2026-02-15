@@ -413,7 +413,7 @@ def parse_args():
     parser.add_argument('--model-types', type=str, nargs='*', default=None,
                         help='Subset of model types to run (e.g., base instruct reasoning)')
     parser.add_argument('--politician-csv', type=str,
-                        default='/project/jevans/maxzhuyt/data/HS116_members_fullname.csv')
+                        default='/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv')
     parser.add_argument('--public-topics', type=str,
                         default='../question_lists/public_issues.csv')
     parser.add_argument('--public-polarization', type=str,

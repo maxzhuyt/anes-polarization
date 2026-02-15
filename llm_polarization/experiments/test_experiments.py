@@ -78,7 +78,7 @@ except Exception as e:
 # =============================================================================
 print("\n[Test 3] Testing politician loading...")
 try:
-    politician_csv = "/project/jevans/maxzhuyt/data/HS116_members_fullname.csv"
+    politician_csv = "/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv"
     df_politicians = load_politicians(politician_csv)
 
     print(f"  Total politicians: {len(df_politicians)}")

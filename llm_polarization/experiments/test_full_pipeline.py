@@ -84,7 +84,7 @@ except Exception as e:
 # =========================================================================
 print("\n[2] Politician Loading (must match run_model_comparison.py)")
 # =========================================================================
-POL_CSV = "/project/jevans/maxzhuyt/data/HS116_members_fullname.csv"
+POL_CSV = "/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv"
 df_pol = load_politicians(POL_CSV)
 politician_names = df_pol['fullname'].tolist()
 politician_labels = (df_pol['party_code'].values == 200).astype(int)

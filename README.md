@@ -14,8 +14,8 @@ gss_polarization/
 │   ├── anes/                          # ANES survey data
 │   │   ├── anes_timeseries_2020_*.csv
 │   │   ├── anes_timeseries_2024_*.csv
-│   │   ├── policy_clean.csv
-│   │   └── politicians.csv
+│   │   └── policy_clean.csv
+│   ├── politicians.csv                # DW-NOMINATE data (116th Congress, Voteview)
 │   └── polarization/                  # Survey polarization scores
 │       ├── public_issues_polarization.csv
 │       ├── private_life_polarization.csv

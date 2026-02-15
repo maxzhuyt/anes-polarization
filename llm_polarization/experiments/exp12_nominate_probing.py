@@ -86,7 +86,7 @@ from config import SYSTEM_MSG_POLITICIAN
 
 EXPERIMENT_NAME = "exp12"
 MAX_LENGTH = 128
-POLITICIAN_CSV = "/project/jevans/maxzhuyt/data/HS116_members_fullname.csv"
+POLITICIAN_CSV = "/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv"
 N_TOPICS = 10  # Use 10 diverse topics for probing
 RIDGE_ALPHA = 1.0  # Match Kaplan et al.
 N_FOLDS = 2  # Match Kaplan et al.'s 2-fold CV

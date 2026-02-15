@@ -36,7 +36,7 @@ MODEL_PATH = MODEL_FAMILIES['Qwen3-4B']['base']['path']
 BATCH_SIZE = 180
 
 # Load politicians
-POL_CSV = "/project/jevans/maxzhuyt/data/HS116_members_fullname.csv"
+POL_CSV = "/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv"
 df_pol = load_politicians(POL_CSV)
 politician_names = df_pol['fullname'].tolist()
 politician_labels = (df_pol['party_code'].values == 200).astype(int)

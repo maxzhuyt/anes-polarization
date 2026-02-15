@@ -119,7 +119,7 @@ def run_experiment(replication: bool = False):
 
     # Load politicians (same as run_model_comparison.py)
     print("\nLoading politicians...")
-    politician_csv = "/project/jevans/maxzhuyt/data/HS116_members_fullname.csv"
+    politician_csv = "/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv"
     df_politicians = load_politicians(politician_csv)
     politician_names = df_politicians['fullname'].tolist()
     # party_code: 100=Democrat, 200=Republican -> labels: 0=Democrat, 1=Republican

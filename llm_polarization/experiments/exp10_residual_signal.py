@@ -155,7 +155,7 @@ def run_experiment():
 
     # Load politicians
     print("\nLoading politicians...")
-    politician_csv = "/project/jevans/maxzhuyt/data/HS116_members_fullname.csv"
+    politician_csv = "/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv"
     df_politicians = load_politicians(politician_csv)
     politician_names = df_politicians['fullname'].tolist()
     politician_labels = (df_politicians['party_code'].values == 200).astype(int)

@@ -22,7 +22,7 @@ All models stored at `/project/jevans/maxzhuyt/models/`.
 
 ### Shared Methodology
 
-- **Politicians**: 550 members of U.S. 116th Congress from `HS116_members_fullname.csv` (287 Democrat [party_code=100], 263 Republican [party_code=200])
+- **Politicians**: 550 members of U.S. 116th Congress from `data/politicians.csv` (DW-NOMINATE, Voteview) (287 Democrat [party_code=100], 263 Republican [party_code=200])
 - **Activation extraction**: `extract_heads_batched()` returns 4D tensor `(N, L, H, D)` per topic. For Qwen3-4B: `(550, 36, 32, 128)` = ~325 MB/topic. For Llama-3.1-8B: `(550, 32, 32, 128)`.
 - **Prompt format**: Base models use completion-style templates (e.g., `"{name} makes a statement on {topic}:"`). Instruct/reasoning models use chat templates with `SYSTEM_MSG_POLITICIAN`.
 - **Inline processing**: To prevent OOM, activations are extracted, processed, and freed per-topic (never stored across topics simultaneously).

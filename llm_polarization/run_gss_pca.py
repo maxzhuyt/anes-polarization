@@ -38,7 +38,7 @@ from model_utils import load_model, extract_heads_batched, get_model_info
 from prompt_utils import load_politicians, generate_politician_prompts, POLITICIAN_TEMPLATES
 
 # Default politician CSV path
-DEFAULT_POLITICIAN_CSV = "/project/jevans/maxzhuyt/data/HS116_members_fullname.csv"
+DEFAULT_POLITICIAN_CSV = "/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv"
 
 
 # =============================================================================

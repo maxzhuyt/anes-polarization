@@ -83,7 +83,7 @@ from config import SYSTEM_MSG_POLITICIAN
 EXPERIMENT_NAME = "exp13"
 MAX_LENGTH = 128
 GENERATION_LENGTH = 80  # Generate 80 new tokens
-POLITICIAN_CSV = "/project/jevans/maxzhuyt/data/HS116_members_fullname.csv"
+POLITICIAN_CSV = "/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv"
 N_POLITICIANS_PER_PARTY = 50  # Use 50 per party for speed
 PCA_DIM = 15
 

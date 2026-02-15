@@ -2,7 +2,7 @@
 #SBATCH --job-name=model_cmp
 #SBATCH --output=logs/model_cmp_%j.out
 #SBATCH --error=logs/model_cmp_%j.err
-#SBATCH --time=48:00:00
+#SBATCH --time=30:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4

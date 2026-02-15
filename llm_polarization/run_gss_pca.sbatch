@@ -50,7 +50,7 @@ MODEL_PATH=${MODEL_PATH:-"/project/jevans/maxzhuyt/models/Qwen1.5-7B-Chat"}
 MODEL_NAME=${MODEL_NAME:-"Qwen1.5-7B-Chat"}
 PCA_DIMS=${PCA_DIMS:-"5 10 15 30"}
 SKIP_BOOTSTRAP=${SKIP_BOOTSTRAP:-"0"}
-POLITICIAN_CSV=${POLITICIAN_CSV:-"/project/jevans/maxzhuyt/data/HS116_members_fullname.csv"}
+POLITICIAN_CSV=${POLITICIAN_CSV:-"/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv"}
 
 # Copy politician CSV to local data dir to avoid filesystem issues
 mkdir -p data

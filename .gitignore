@@ -39,13 +39,10 @@ ENV/
 *.swp
 *.swo
 
-# Large data files
-data/anes/
-data/gss/
-data/voteview_all_members.csv
+# CSV files (except data/ and question_lists/)
 *.csv
+!data/**
 !question_lists/*.csv
-!data/polarization/*.csv
 
 # Results (large binary files)
 **/results/*.pkl

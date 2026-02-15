@@ -68,7 +68,7 @@ from config import SYSTEM_MSG_POLITICIAN
 
 EXPERIMENT_NAME = "exp3"
 MAX_LENGTH = 128
-POLITICIAN_CSV = "/project/jevans/maxzhuyt/data/HS116_members_fullname.csv"
+POLITICIAN_CSV = "/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv"
 
 BASE_TEMPLATES = {
     "public_issues": "{name} makes a statement on {topic}:",

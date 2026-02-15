@@ -241,7 +241,7 @@ def parse_args():
         description='Test base model prompt sensitivity'
     )
     parser.add_argument('--politician-csv', type=str,
-                        default='/project/jevans/maxzhuyt/data/HS116_members_fullname.csv')
+                        default='/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv')
     parser.add_argument('--public-topics', type=str,
                         default='../question_lists/public_issues.csv')
     parser.add_argument('--public-polarization', type=str,

@@ -385,7 +385,7 @@ DEFAULT_BATCH_SIZE = 128
 # ==========================================
 # DATA PATHS
 # ==========================================
-NOMINATE_CSV = "/project/jevans/maxzhuyt/data/HS116_members_fullname.csv"
+NOMINATE_CSV = "/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv"
 ANES_POLARIZATION_CSV = "policy_polarization.csv"
 
 # ==========================================
