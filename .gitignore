@@ -39,5 +39,28 @@ ENV/
 *.swp
 *.swo
 
-# Large data files (uncomment if needed)
-# data/
+# Large data files
+data/anes/
+data/gss/
+data/voteview_all_members.csv
+*.csv
+!question_lists/*.csv
+!data/polarization/*.csv
+
+# Results (large binary files)
+**/results/*.pkl
+**/results/*.png
+**/results/*.csv
+
+# SLURM logs
+**/logs/*.out
+**/logs/*.err
+
+# Standalone package
+standalone_test_config/
+
+# Papers
+papers/
+
+# GSS political HTML files (large)
+question_fundamentalness/gss_political/

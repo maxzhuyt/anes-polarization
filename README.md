@@ -1,76 +1,86 @@
-# LLM Polarization Analysis
+# GSS Polarization Project
 
-Analyzing how LLM activation polarization correlates with survey-measured partisan polarization (GSS and ANES).
+Analyzing political polarization in the United States using the General Social Survey (GSS) and LLM activation analysis.
 
 ## Project Structure
 
 ```
-├── analysis_gss.ipynb           # Main analysis: GSS single-model
-├── analysis_gss_multimodel.ipynb # Main analysis: GSS multi-model comparison
-├── analysis_anes.ipynb          # Supplementary: ANES analysis
+gss_polarization/
+├── data/                              # All raw data
+│   ├── gss/                           # GSS survey data (2021-2024)
+│   │   ├── gss_2021_2024.csv          # Combined GSS dataset
+│   │   ├── GSS2022.dta                # Stata format
+│   │   └── GSS2024.dta
+│   ├── anes/                          # ANES survey data
+│   │   ├── anes_timeseries_2020_*.csv
+│   │   ├── anes_timeseries_2024_*.csv
+│   │   ├── policy_clean.csv
+│   │   └── politicians.csv
+│   └── polarization/                  # Survey polarization scores
+│       ├── public_issues_polarization.csv
+│       ├── private_life_polarization.csv
+│       └── (filtered variants)
 │
-├── config.py                    # Topics, model paths, settings
-├── model_utils.py               # Model loading, activation extraction
-├── metrics_utils.py             # Polarization metrics (Mahalanobis, etc.)
-├── prompt_utils.py              # Prompt generators
-├── pipeline.py                  # CLI for running experiments
-│
-├── gss_question_lists/          # GSS question filters
-│   ├── public_issues_filtered_2021_2024.csv
-│   ├── private_life_filtered_2021_2024.csv
+├── question_lists/                    # GSS variable metadata
+│   ├── gss_demographic_variables.csv  # 104 demographic variables
+│   ├── gss_politicized_lifestyle_variables.csv  # 67 lifestyle variables
 │   ├── gss_all_variables.csv
-│   └── gss_demographic_variables.csv
+│   ├── public_issues.csv
+│   └── private_life.csv
 │
-├── data/                        # Raw survey data (ANES)
-│   ├── anes_timeseries_2020_csv_20220210.csv
-│   ├── anes_timeseries_2024_csv_20250430.csv
-│   └── policy_clean.csv
+├── llm_polarization/                  # LLM activation polarization analysis
+│   ├── README.md
+│   ├── config.py, model_utils.py, metrics_utils.py, prompt_utils.py
+│   ├── test_config.py, run_demo_sim.py, run_gss_pca.py, pipeline.py
+│   ├── *.sbatch                       # SLURM job scripts
+│   ├── notebooks/                     # Jupyter notebooks
+│   ├── results/                       # LLM output files
+│   └── logs/
 │
-└── llm_results/                 # Generated outputs (git-ignored)
+├── question_fundamentalness/          # Question hierarchy analysis
+│   ├── README.md
+│   ├── gss_topic_mappings.py
+│   ├── methods/                       # Analysis methods (MI, predictive, network, PCA, tree)
+│   ├── scripts/                       # Standalone analysis scripts
+│   ├── notebooks/                     # Jupyter notebooks
+│   ├── results/                       # Analysis outputs
+│   └── logs/
+│
+├── standalone_test_config/            # Self-contained package for bare metal server
+│   ├── test_config.py
+│   ├── setup.sh
+│   └── data/
+│
+└── archive/                           # Legacy analyses from both projects
 ```
 
-## Quick Start
+## Modules
 
-```bash
-# Run politician-based analysis
-python pipeline.py --politician
+### LLM Polarization (`llm_polarization/`)
+Tests whether LLM attention head activations reflect survey-measured partisan polarization. Uses demographic persona prompts → activation extraction → PCA + Mahalanobis distance between Democrat/Republican centroids.
 
-# Run ideology-based analysis
-python pipeline.py --ideology --n-per-level 50
+See [llm_polarization/README.md](llm_polarization/README.md) for details.
 
-# Run both
-python pipeline.py --both
-```
+### Question Fundamentalness (`question_fundamentalness/`)
+Identifies which survey questions are "fundamental" using five independent methods: mutual information, predictive power, network centrality, dimensionality reduction, and tree structure analysis.
 
-## Methodology
+See [question_fundamentalness/README.md](question_fundamentalness/README.md) for details.
 
-### Survey Polarization
-Partisan polarization = normalized distance between Democrat and Republican responses:
-1. Min-max normalize responses to [0, 1]
-2. Compute mean for each party
-3. Polarization = |μ_R − μ_D|
+## Data Sources
 
-### LLM Polarization
-1. Generate prompts with politician names or ideology labels
-2. Extract attention head activations
-3. Compute Mahalanobis distance between liberal/conservative activation centroids
+- **GSS**: General Social Survey 2021, 2022, 2024 (Smith et al., NORC at the University of Chicago)
+- **ANES**: American National Election Studies 2020, 2024
 
-### Correlation
-Compare LLM activation polarization with survey polarization across topics.
+## GPU Clusters
 
-## Key Results
-
-| Survey | Pearson r |
-|--------|-----------|
-| GSS (120 questions) | 0.598 |
-| ANES (18 broad questions) | 0.652 |
+| Partition | GPUs | VRAM | Recommended batch_size |
+|-----------|------|------|----------------------|
+| `jevans-gpu` | 4x H100 | 80 GB | 32-96 |
+| `ssd-gpu` | 4x A100 | 40 GB | 16-24 |
+| Bare metal | 1x RTX 3090 | 24 GB | 4-8 |
 
 ## Requirements
 
 ```
-pandas
-numpy
-matplotlib
-torch
-transformers
+pandas, numpy, matplotlib, torch, transformers, scipy, scikit-learn, joblib, networkx, seaborn
 ```
