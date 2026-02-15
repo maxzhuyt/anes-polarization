@@ -6,7 +6,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem=8G
+#SBATCH --mem=7G
 #SBATCH --gres=gpu:1
 #SBATCH --partition=jevans-gpu
 #SBATCH --account=pi-jevans
@@ -39,7 +39,7 @@ conda activate /project/jevans/maxzhuyt/honest_llama_env
 # Default values
 BATCH_SIZE=${BATCH_SIZE:-"80"}
 MAX_LENGTH=${MAX_LENGTH:-"128"}
-PCA_DIMS=${PCA_DIMS:-"5 10 15"}
+PCA_DIMS=${PCA_DIMS:-"1 3 5 10 15"}
 
 # Build command
 CMD="python run_model_comparison.py \

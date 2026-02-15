@@ -49,11 +49,7 @@ MODEL_FAMILIES = {
         "base":      {"path": f"{MODELS_DIR}/gemma-2-9b",    "type": "base",     "batch_size": 160},
         "instruct":  {"path": f"{MODELS_DIR}/gemma-2-9b-it", "type": "instruct", "batch_size": 160},
     },
-    "Ministral-3-8B": {
-        "base":      {"path": f"{MODELS_DIR}/Ministral-3-8B-Base-2512",      "type": "base",      "batch_size": 150},
-        "instruct":  {"path": f"{MODELS_DIR}/Ministral-3-8B-Instruct-2512",  "type": "instruct",  "batch_size": 150},
-        "reasoning": {"path": f"{MODELS_DIR}/Ministral-3-8B-Reasoning-2512", "type": "reasoning", "batch_size": 150},
-    },
+
     "SmolLM3-3B": {
         "base":      {"path": f"{MODELS_DIR}/SmolLM3-3B-Base",            "type": "base",      "batch_size": 138},
         "instruct":  {"path": f"{MODELS_DIR}/SmolLM3-3B",                 "type": "instruct",  "batch_size": 138,
@@ -428,7 +424,7 @@ def parse_args():
                         default='../data/polarization/private_life_polarization.csv')
     parser.add_argument('--batch-size', type=int, default=80)
     parser.add_argument('--max-length', type=int, default=128)
-    parser.add_argument('--pca-dims', type=int, nargs='+', default=[5, 10, 15])
+    parser.add_argument('--pca-dims', type=int, nargs='+', default=[1, 3, 5, 10, 15])
     parser.add_argument('--output-dir', type=str, default='results')
     parser.add_argument('--min-dem', type=int, default=100)
     parser.add_argument('--min-rep', type=int, default=100)
