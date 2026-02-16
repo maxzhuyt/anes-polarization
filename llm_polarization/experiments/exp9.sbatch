@@ -2,19 +2,20 @@
 #SBATCH --job-name=exp9_anon
 #SBATCH --output=logs/exp9_%j.out
 #SBATCH --error=logs/exp9_%j.err
-#SBATCH --time=4:00:00
+#SBATCH --time=6:00:00
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=24G
 #SBATCH --gres=gpu:1
-#SBATCH --partition=jevans-gpu
-#SBATCH --account=pi-jevans
+#SBATCH --partition=ssd-gpu
+#SBATCH --account=ssd
+#SBATCH --qos=ssd
 
 mkdir -p logs
 
 echo "=============================================="
-echo "EXPERIMENT 9: NAME ANONYMIZATION TEST"
+echo "EXPERIMENT 9: ANONYMIZATION TEST (REDESIGNED)"
 echo "SLURM Job ID: $SLURM_JOB_ID"
 echo "Running on: $(hostname)"
 echo "GPUs: $CUDA_VISIBLE_DEVICES"

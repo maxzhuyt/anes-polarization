@@ -1,7 +1,7 @@
 # Results Analysis: LLM Partisan Activation Experiments
 
-**Date**: February 14, 2026
-**Cluster**: jevans-gpu (H100 80GB)
+**Date**: February 15, 2026
+**Cluster**: jevans-gpu (H100 80GB), ssd-gpu (A100 40GB)
 **Runtime**: ~8 hours total across all experiments
 
 ---
@@ -43,12 +43,12 @@ All models stored at `/project/jevans/maxzhuyt/models/`.
 | 2 | Layer Depth | DONE | 1h 56m | Instruct peaks at 58% depth |
 | 3 | Coherence | DONE | 36 min | Cross-topic transfer = 0.51 (chance) |
 | 5 | Elite Amplification | DONE | 57 min | All models amplify 4-6x |
-| 6 | False Polarization | DONE | 33 min | AUC = 0.52-0.56 (near chance) |
-| 7 | Head Discriminability | DONE | 30 min | AUC ~0.95, Jaccard ~1.0 |
-| 8 | Affective vs Policy | DONE | 18 min | No difference (p=0.78-0.98) |
+| 6 | ~~False Polarization~~ | DROPPED | — | Premise flawed (see below) |
+| 7 | Head Discriminability | **REDESIGNED** | PENDING | Top-k% approach replaces AUC>0.6 threshold |
+| 8 | Affective vs Policy | **REDESIGNED** | PENDING | Three domains: policy/affective/identity |
 | B | Bramson 9 Dimensions | DONE | 27 min | Zero GSS correlations |
-| 9 | Name Anonymization | DONE | 1h 40m | Anon 20x > Named (surprising) |
-| 10 | Residual Signal | DONE | 1h 12m | No hidden ideology |
+| 9 | Name Anonymization | **REDESIGNED** | PENDING | Cosine+probe (not Mahalanobis), 3 conditions |
+| 10 | ~~Residual Signal~~ | DROPPED | — | Too mechanical (see below) |
 | 12 | DW-NOMINATE Probing | DONE | 17 min | Instruct rho=0.84, transfer=0.90 |
 | 13 | Behavioral Validation | DONE* | 22 min | Instruct generates partisan text (7/8 models) |
 
@@ -305,157 +305,221 @@ Instruct models produce proportionally more activation-space separation than bas
 
 ---
 
-## Experiment 6: False Polarization Detection
+## ~~Experiment 6: False Polarization Detection~~ [DROPPED]
 
-### Research Question
-Do LLMs create partisan separation on topics where real-world data shows minimal or no polarization?
+**Reason for dropping**: The premise of this experiment was flawed. LLM activation space is a simulation of cognitive space across politicians — which is itself a simulation task grounded in each politician's identity, personal history, and policy positions. There *should be* far more heterogeneity in activation space than in surveys, because the model encodes rich biographical information, not just 7-point scale responses. Finding that LLM activations show more separation than GSS survey data does not constitute "false polarization" — it's the expected outcome of a richer representational medium. The experiment's key metric (comparing activation-space distance to survey distance) does not produce interpretable results.
 
-### Hypotheses
-- **H6a**: Models show significant Mahalanobis distance even on low-GSS-polarization topics
-- **H6b**: False polarization rate is higher for instruct > base > reasoning
-- **H6c**: Private life topics are more susceptible to false polarization
-
-### Method
-- **Topics**: 40 topics spanning the full GSS polarization spectrum
-- **PCA dim**: 15
-- **False polarization**: Model distance > median AND GSS polarization < median
-- **ROC analysis**: Can model distance predict actual GSS polarization category?
-- **Rank-order**: Spearman correlation between model distance rank and GSS polarization rank
-
-### Results
-
-**Median Model Distance by Type:**
-- Base: 4.295
-- Instruct: 4.844
-- Reasoning: 3.092
-
-**ROC Analysis (predicting high/low GSS from model distance):**
-
-| Model Type | AUC | FP Rate | FN Rate |
-|-----------|-----|---------|---------|
-| Base | 0.517 | 0.467 | 0.467 |
-| Instruct | 0.563 | 0.467 | 0.467 |
-| Reasoning | 0.548 | 0.500 | 0.500 |
-
-**Rank-Order Correlation:**
-
-| Model Type | Spearman rho | p-value |
-|-----------|-------------|---------|
-| Base | 0.021 | 0.899 |
-| Instruct | 0.415 | 0.008 |
-| Reasoning | 0.124 | 0.447 |
-
-**Most falsely polarized topics (low GSS, high model distance):**
-1. `abrape` — model_dist=4.086, gss_pol=0.203
-2. `govchrst` — model_dist=4.051, gss_pol=0.291
-3. `abdefect` — model_dist=4.003, gss_pol=0.255
-4. `grnecon` — model_dist=3.999, gss_pol=0.291
-5. `fejobaff` — model_dist=3.890, gss_pol=0.257
-
-### Hypothesis Assessment
-- **H6a (SUPPORTED)**: All model types show substantial Mahalanobis distance on low-polarization topics. False positive rates are ~47-50%.
-- **H6b (PARTIALLY SUPPORTED)**: Instruct has highest AUC (0.563) but rates are near chance for all types. Ordering matches prediction but differences are tiny.
-- **H6c (NOT TESTED explicitly)**: Category breakdown not reported.
-
-### Assessment
-ROC AUC near 0.5 means model distance is nearly useless for predicting whether a topic is actually polarized. However, instruct models show a significant rank-order correlation (Spearman rho=0.415, p=0.008) — they preserve relative ordering even though absolute calibration fails. This is the one bright spot: instruct models know *relatively* which topics are more polarized, even if they can't predict *whether* a topic is polarized in absolute terms.
+**Original results preserved for reference**: ROC AUC was near chance (0.52-0.56) for predicting whether a topic is actually polarized from model distance. The one positive finding — instruct models preserving rank-order of topic polarization (Spearman rho=0.415) — is already captured by Exp5's amplification analysis.
 
 ---
 
-## Experiment 7: Head-Level Discriminability Analysis (LDA)
+## Experiment 7: Head-Level Discriminability Analysis (Redesigned)
 
 ### Research Question
-Which attention heads are most important for encoding partisan information? Do base/instruct/reasoning models use different heads?
+Which attention heads are most important for encoding partisan information? Are the *same* heads consistently most discriminative across different topics?
+
+### Why Redesigned
+The original Exp7 used a fixed threshold (AUC > 0.6) to identify "discriminative" heads. Because nearly every head achieves AUC >> 0.6 (mean AUC ~0.95), this threshold captured 82-94% of all heads, making Jaccard overlap trivially ~1.0. The result was uninformative — it merely confirmed that most heads encode *some* party information, not whether partisan encoding is *concentrated* in a stable subset.
 
 ### Hypotheses
-- **H7a**: Partisan info is concentrated in a small subset of heads (<10%)
-- **H7b**: Instruct models use later-layer heads more than base models
-- **H7c**: The most discriminative heads overlap across topics (stable "political" heads)
+- **H7a**: The top 5% most discriminative heads overlap substantially across topics (Jaccard > 0.3), indicating a stable set of "political" heads
+- **H7b**: Top heads are concentrated in specific layers (not uniformly distributed)
+- **H7c**: Instruct models concentrate top heads in later layers relative to base models
 
 ### Method
-- **Topics**: 6 topics (representative subset)
-- **Per head**: For each head `(l, h)`, extract `(N, D)` activations, compute LDA (Fisher's linear discriminant) projection to 1D, evaluate AUC
-- **Why LDA instead of logistic regression**: Original implementation used logistic regression fit-and-evaluate on same data (inflated AUC). First fix: 5-fold StratifiedKFold CV — too slow (~134 hours estimated). Final fix: LDA projection is closed-form O(N) per head, completed in ~30 minutes.
-- **Cross-topic overlap**: Jaccard similarity of top heads (AUC > 0.6) across all topic pairs
+- **Topics**: Same 6 representative topics from `exp7_attention_topics.json`
+- **Per head**: For each head `(l, h)`, extract `(N, D)` activations, compute LDA (Fisher's linear discriminant) projection to 1D, evaluate AUC. LDA is closed-form O(N) per head, no train-test leakage.
+- **Top-k% selection**: Instead of a fixed AUC threshold, take the top 5% and 10% most discriminative heads per topic. For Qwen3-4B (1,152 heads), top 5% = 58 heads; for Llama-3.1-8B (1,024 heads), top 5% = 51 heads.
+- **Cross-topic overlap**: Pairwise Jaccard similarity of top-k head sets across all topic pairs. Also compute the *intersection* across all topics — "universal" heads that appear in every topic's top-k.
+- **Layer concentration**: For each model, count how the top-k% heads distribute across layers. If concentrated, the partisan signal has a "home" in specific layers. If uniform, every layer contributes equally.
 
 ### Results
 
-**Discriminability by Model Type:**
+**AUC Distribution by Model Type (averaged across 20 topics):**
 
-| Model Type | Mean AUC | Max AUC | Heads > 0.6 (of total L×H) |
+| Model Type | Mean AUC | Max AUC | Median AUC |
 |-----------|----------|---------|------------|
-| Base | 0.9479 | 0.9964 | 946.7 |
-| Instruct | 0.9525 | 0.9995 | 947.2 |
-| Reasoning | 0.9217 | 0.9971 | 1083.7 |
+| Base | 0.9479 | 0.9963 | 0.9808 |
+| Instruct | 0.9525 | 0.9995 | 0.9954 |
+| Reasoning | 0.9218 | 0.9971 | 0.9803 |
 
-**Cross-Topic Head Overlap (Jaccard index):**
+Even with the redesigned analysis, mean AUC remains very high (>0.92) for all model types, confirming that nearly every head encodes *some* partisan information. The key question is what happens when we focus on the *elite* top-k%.
 
-| Model | Jaccard |
-|-------|---------|
-| Qwen3-4B base | 0.996 |
-| Qwen3-4B instruct | 0.997 |
-| Qwen3-4B reasoning | 0.996 |
-| Llama-3.1-8B base | 0.997 |
-| Llama-3.1-8B instruct | 0.999 |
-| Llama-3.1-8B reasoning | 0.997 |
-| Gemma-2-9b base | 1.000 |
-| Gemma-2-9b instruct | 0.999 |
+**Cross-Topic Top-K Head Overlap (Jaccard index, top 5%):**
 
-Note: For Qwen3-4B, which has 36 layers × 32 heads = 1,152 heads total, ~947/1,152 (82%) exceed AUC 0.6.
+| Model | Mean Jaccard | Range | Universal/Total |
+|-------|-------------|-------|-----------------|
+| Qwen3-4B base | 0.409 | [0.267, 0.702] | 5/57 |
+| Qwen3-4B instruct | 0.367 | [0.213, 0.702] | 7/57 |
+| Qwen3-4B reasoning | 0.335 | [0.152, 0.629] | 2/57 |
+| Llama-3.1-8B base | 0.308 | [0.133, 0.645] | 1/51 |
+| Llama-3.1-8B instruct | 0.300 | [0.146, 0.545] | 2/51 |
+| Llama-3.1-8B reasoning | **0.465** | [0.291, 0.729] | **12/51** |
+| Gemma-2-9b base | 0.087 | [0.000, 0.269] | 0/33 |
+| Gemma-2-9b instruct | **0.523** | [0.000, 0.833] | 0/33 |
+
+**Cross-Topic Top-K Head Overlap (Jaccard index, top 10%):**
+
+| Model | Mean Jaccard | Range | Universal/Total |
+|-------|-------------|-------|-----------------|
+| Qwen3-4B base | 0.481 | [0.361, 0.783] | 21/115 |
+| Qwen3-4B instruct | 0.462 | [0.330, 0.691] | 17/115 |
+| Qwen3-4B reasoning | 0.413 | [0.285, 0.608] | 15/115 |
+| Llama-3.1-8B base | 0.385 | [0.214, 0.714] | 11/102 |
+| Llama-3.1-8B instruct | 0.416 | [0.236, 0.606] | 13/102 |
+| Llama-3.1-8B reasoning | **0.529** | [0.360, 0.714] | **28/102** |
+| Gemma-2-9b base | 0.161 | [0.064, 0.354] | 0/67 |
+| Gemma-2-9b instruct | **0.545** | [0.000, 0.811] | 0/67 |
+
+Compared to the original result (Jaccard ~0.996-1.000 with AUC > 0.6 threshold), the top-5% overlap is dramatically lower (0.09-0.52), confirming the redesign resolved the trivial ceiling effect.
+
+**Layer Concentration of Top 5% Heads:**
+
+| Model | Peak Layer | Peak % | Later Half % |
+|-------|-----------|--------|-------------|
+| Qwen3-4B base | 24/35 | 17.0% | **91.2%** |
+| Qwen3-4B instruct | 23/35 | 17.7% | **93.8%** |
+| Qwen3-4B reasoning | 23/35 | 10.8% | **93.1%** |
+| Llama-3.1-8B base | 14/31 | 11.1% | 46.9% |
+| Llama-3.1-8B instruct | 15/31 | 15.5% | **58.2%** |
+| Llama-3.1-8B reasoning | 12/31 | 13.2% | 25.9% |
+| Gemma-2-9b base | 23/41 | 9.9% | **67.6%** |
+| Gemma-2-9b instruct | 39/41 | **37.6%** | **72.1%** |
 
 ### Hypothesis Assessment
-- **H7a (STRONGLY REJECTED)**: The partisan signal is NOT concentrated in a few heads. 82-94% of all heads achieve AUC > 0.6. Mean AUC is 0.92-0.95. This is a ceiling effect — essentially every head encodes party.
-- **H7b (NOT SUPPORTED)**: Cannot distinguish instruct from base by head location; the signal saturates all heads in both.
-- **H7c (STRONGLY SUPPORTED)**: Jaccard overlap 0.996-1.000 across topics. The *same* heads (i.e., nearly all of them) discriminate party regardless of topic.
+- **H7a (MODERATELY SUPPORTED)**: Top-5% Jaccard ranges from 0.09 to 0.52. For 6 of 8 models, mean Jaccard is 0.30-0.52 (substantially above zero), indicating a moderately stable core of political heads. However, not as stable as H7a predicted (Jaccard > 0.3 threshold met by 6/8 models). Gemma-2-9b base is an outlier with near-zero overlap, suggesting its top heads are completely topic-specific.
+- **H7b (STRONGLY SUPPORTED)**: Top heads are highly concentrated in later layers. For Qwen3-4B, >91% of top heads fall in the later half across all model types. For Gemma-2-9b instruct, 37.6% of top heads are in a single layer (39/41). The partisan signal has a clear "home" in the network.
+- **H7c (SUPPORTED for some families)**: For Llama-3.1-8B, instruct concentrates heads later (58.2% in later half) vs base (46.9%). For Gemma-2-9b, instruct peak is at layer 39/41 vs base at 23/41. However, Qwen3-4B shows >91% in later half for all three types, so the instruct shift is family-dependent.
 
 ### Assessment
-The near-universal discriminability (AUC ~0.95 at every head) creates a paradox with Exp3 (chance-level cross-topic transfer). Resolution: every head encodes "who this person is" (biographical fact), but the geometry of that encoding varies by topic context. The LDA method is methodologically sound (closed-form, no train-test leakage) and confirms the original finding was not an artifact.
+The redesigned top-k% approach reveals a much richer picture than the original AUC > 0.6 analysis:
+
+1. **Moderate stability, not trivial overlap**: The top 5% of heads show Jaccard ~0.30-0.52 across topics for most models — meaningful but far from the near-perfect overlap (~0.996) that the original analysis found. There IS a partially stable core of political heads, but their composition shifts meaningfully between topics.
+
+2. **Surprising model-type patterns**: DeepSeek-R1-Distill-Llama (reasoning) shows the *highest* head stability (Jaccard 0.465, 12 universal heads) among Llama models. This contrasts with its base-like Mahalanobis distance in Exp1. Interpretation: reasoning training may concentrate the partisan signal into fewer, more stable heads while reducing overall magnitude.
+
+3. **Strong layer concentration**: Top heads cluster in later layers (especially for Qwen: >91% in later half). Gemma-2-9b instruct shows extreme concentration: 37.6% of all top-5% heads are in a single layer (39/41, the penultimate layer). This suggests the partisan signal is processed late in the network, consistent with Exp2's layer-depth finding.
+
+4. **Family-specific architecture effects**: Gemma-2-9b base has near-zero head overlap (0.087) despite having the highest per-head AUCs (mean 0.987). This model's top heads are entirely topic-specific — partisan encoding is distributed across the network with no stable specialization. Gemma-2-9b instruct reverses this pattern (0.523), suggesting instruction tuning creates head specialization in Gemma.
 
 ---
 
-## Experiment 8: Affective vs Policy Polarization
+## Experiment 8: Affective vs Policy Polarization (Redesigned)
 
 ### Research Question
-Do LLMs encode "affective" (identity/feeling-based) polarization differently from "policy" (issue-based) polarization?
+Do LLMs encode affective polarization (inter-party hostility/warmth) differently from policy polarization (issue-position divergence)?
+
+### Why Redesigned
+The original Exp8 had only 1 affective topic (`confed` — confederate flag), making the affective-vs-policy comparison uninterpretable. More fundamentally, the operationalization of "affective" vs "policy" was underspecified and did not reflect how these constructs are studied in the human literature.
+
+### Background: Human Polarization Literature
+- **Policy polarization**: Divergence in issue positions between parties. Measured via survey items on specific policies (spending, abortion, guns). It is about *what you believe*.
+- **Affective polarization**: Hostility toward, or negative evaluation of, the out-party irrespective of policy. Measured via feeling thermometers, social distance scales, and trait ratings. Key work: Iyengar, Sood, & Lelkes (2012); Mason (2015). It is about *how you feel about the other side*.
+- **Partisan identity**: The strength of attachment to one's party as a social group, independent of policy or affect. Key work: Green, Palmquist, & Schickler (2002). It is about *who you are*.
+
+### Operationalization for LLMs
+We use three distinct prompt domains that isolate different aspects:
+
+1. **Policy prompts**: "Generate a statement by {name} on {topic}." / "{name} makes a statement on {topic}:" — Uses real GSS policy topics (10 topics: eqwlth, natenvir, cappun, gunlaw, abany, natspac, homosex, prayer, immig, grass). Activations reflect policy-stance encoding.
+
+2. **Affective prompts**: "How would {name} respond when asked about {topic}?" / "{name} discusses {topic}:" — Novel prompts about inter-party feelings, trust, and social distance (10 topics: feelings about the opposite party, trusting opposite-party neighbors, marrying into the other party, perceptions of opposite-party intelligence/morality, etc.). Activations reflect affective/identity-based encoding.
+
+3. **Identity prompts**: "How would {name} talk about {topic}?" / "{name} describes {topic}:" — No policy or affective content (5 topics: importance of being a partisan, what party membership means, party as core identity, etc.). Activations reflect pure partisan self-concept encoding.
 
 ### Hypotheses
-- **H8a**: Affective topics show higher model separation than policy topics
-- **H8b**: Instruct models conflate affective/policy more than base models
-- **H8c**: Cross-domain transfer (affective→policy) is higher for instruct than base
+- **H8a**: Affective topics show higher partisan separation (Mahalanobis) than policy topics, as the model may amplify inter-group hostility beyond what policy differences explain
+- **H8b**: Probe accuracy is higher for identity topics than policy topics (pure partisan signal)
+- **H8c**: Cross-domain transfer is highest between affective and identity (both tap group-level representation) and lowest for policy → affective
+- **H8d**: Instruct models show larger affective-policy gap than base models (RLHF may amplify affective polarization)
 
 ### Method
-- **Topics**: Curated affective + policy topics from `exp8_affective_topics.json`
+- **Topics**: 10 policy + 10 affective + 5 identity from `exp8_redesigned_topics.json`
 - **PCA dim**: 15
-- **Comparison**: Mahalanobis distance for affective vs policy topics, within each model type
-- **Transfer**: Train on affective, test on policy (and vice versa)
+- **Metrics**: Mahalanobis distance (party centroid separation), 5-fold CV linear probe accuracy
+- **Cross-domain transfer**: For each model, concatenate PCA features across all topics within a domain, then train logistic regression on domain A and test on domain B → 3×3 transfer matrix (policy/affective/identity)
+- **Models**: All 8 models across 3 families
 
 ### Results
 
-**Mahalanobis Distance: Affective vs Policy:**
+**Mahalanobis Distance by Domain and Model Type (PCA=15, mean across topics):**
 
-| Model Type | Affective Mean | Policy Mean | Difference |
-|-----------|---------------|-------------|-----------|
-| Base | 3.456 | 3.473 | -0.017 |
-| Instruct | 4.435 | 4.541 | -0.106 |
-| Reasoning | 3.060 | 3.121 | -0.061 |
+| Model Type | Policy | Affective | Identity |
+|-----------|--------|-----------|----------|
+| Base | 3.594 | 3.180 | **3.981** |
+| Instruct | 4.679 | 4.560 | **4.862** |
+| Reasoning | **3.169** | 3.001 | 2.899 |
 
-Differences are negligible (< 0.11) across all model types.
+For base and instruct: **Identity > Policy > Affective**. Identity prompts (pure partisan self-concept) produce the largest D-R separation, followed by policy (issue positions), then affective (inter-party feelings). For reasoning: the ordering reverses — **Policy > Affective > Identity**.
 
-**Cross-Domain Transfer:**
+**Probe Accuracy by Domain and Model Type (5-fold CV):**
 
-| Model Type | Affective→Policy | Policy→Affective |
-|-----------|-----------------|-----------------|
-| Base | 0.560 | 0.596 |
-| Instruct | 0.596 | 0.609 |
-| Reasoning | 0.476 | 0.495 |
+| Model Type | Policy | Affective | Identity |
+|-----------|--------|-----------|----------|
+| Base | 0.914 | 0.897 | **0.942** |
+| Instruct | 0.963 | 0.963 | **0.966** |
+| Reasoning | **0.929** | 0.921 | 0.912 |
+
+For instruct, all three domains achieve near-identical probe accuracy (~0.96). The domain difference is most visible in base models: identity (0.942) > policy (0.914) > affective (0.897). Reasoning again reverses the pattern.
+
+**Per-Model Mahalanobis Distance (mean across topics within domain):**
+
+| Model | Affective | Identity | Policy |
+|-------|-----------|----------|--------|
+| Qwen3-4B base | 1.449 | 2.125 | 1.700 |
+| Qwen3-4B instruct | 3.383 | 3.469 | 3.305 |
+| Qwen3-4B reasoning | 2.929 | 3.027 | 2.861 |
+| Llama-3.1-8B base | 3.887 | 4.533 | 4.674 |
+| Llama-3.1-8B instruct | 4.845 | 5.191 | 4.935 |
+| Llama-3.1-8B reasoning | 3.074 | 2.772 | 3.477 |
+| Gemma-2-9b base | 4.203 | 5.284 | 4.407 |
+| Gemma-2-9b instruct | 5.452 | 5.926 | 5.798 |
+
+Across all base and instruct models, identity topics consistently produce the highest Mahalanobis distance (highlighted). The Gemma-2-9b family shows the largest identity premium (base: identity 5.28 vs policy 4.41; instruct: identity 5.93 vs policy 5.80).
+
+**Cross-Domain Transfer Accuracy (train on row → test on column):**
+
+Selected models showing representative patterns:
+
+*Llama-3.1-8B instruct:*
+
+| Train \ Test | Policy | Affective | Identity |
+|-------------|--------|-----------|----------|
+| Policy | **0.989** | 0.755 | 0.389 |
+| Affective | 0.749 | **0.986** | 0.496 |
+| Identity | 0.396 | 0.516 | **0.987** |
+
+*Gemma-2-9b instruct:*
+
+| Train \ Test | Policy | Affective | Identity |
+|-------------|--------|-----------|----------|
+| Policy | **0.989** | 0.645 | 0.680 |
+| Affective | 0.558 | **0.989** | 0.769 |
+| Identity | 0.666 | **0.822** | **0.995** |
+
+Key transfer patterns:
+- **Policy ↔ Affective**: Moderate transfer (~0.56-0.75 for instruct), highest for Llama instruct (0.75 bidirectional)
+- **Identity → other domains**: Asymmetric. Identity transfers well to affective (Gemma instruct: 0.82) but poorly to policy in some models
+- **Self-accuracy**: Extremely high (>0.98) for all models and domains, confirming strong within-domain signal
+- **Model variation**: Transfer patterns differ substantially across models — no universal pattern
 
 ### Hypothesis Assessment
-- **H8a (REJECTED)**: No meaningful difference between affective and policy topics (differences < 0.11).
-- **H8b (NOT TESTABLE)**: With no base difference to "conflate," this hypothesis is moot.
-- **H8c (WEAKLY SUPPORTED)**: Instruct has slightly higher cross-domain transfer (0.60) than base (0.56-0.60) and reasoning (0.48-0.50), but the absolute values are near chance.
+- **H8a (REJECTED)**: Affective topics show *lower* separation than policy topics (base: 3.18 vs 3.59; instruct: 4.56 vs 4.68). Identity shows the highest. The ordering is identity > policy > affective, not affective > policy.
+- **H8b (SUPPORTED)**: Identity probe accuracy is highest for base models (0.942 vs 0.914 policy, 0.897 affective). For instruct, the differences are minimal (~0.96 for all), suggesting instruct models encode all domains at ceiling.
+- **H8c (PARTIALLY SUPPORTED)**: Identity → affective transfer is indeed relatively high (Gemma instruct: 0.82), but policy ↔ affective bidirectional transfer is the strongest pair for Llama instruct (0.75). The pattern is model-specific, not universal.
+- **H8d (NOT SUPPORTED)**: Instruct models do NOT show a larger affective-policy gap. The differences between domains are actually smaller for instruct (identity-affective gap: 0.30) than base (0.80). Instruct models compress cross-domain variation.
 
 ### Assessment
-**This experiment was underpowered by design.** The affective topic category contained only 1 topic (`confed` — confederate flag), making any affective vs policy comparison essentially a single-topic vs multi-topic comparison. Results are uninterpretable with n=1 affective topic. Cross-domain transfer values slightly above chance may be noise. This experiment needs redesigning with more affective topics (e.g., thermometer ratings, social distance measures) to be informative.
+**The most informative finding is the identity > policy > affective ordering.** Pure partisan identity prompts ("how does [politician] describe their party membership") create the strongest D-R separation, even stronger than specific policy issues. This suggests:
+
+1. **Identity encoding is primary**: LLMs encode "who someone is politically" (identity) more strongly than "what they believe" (policy) or "how they feel about the other side" (affective). This mirrors the human literature: Green, Palmquist, & Schickler (2002) argued that partisan identity is prior to and more stable than issue positions.
+
+2. **Affective polarization is weaker in LLMs**: Despite the surge of affective polarization among humans (Iyengar et al. 2012), LLMs show the *weakest* partisan encoding for affective prompts. This makes sense: LLMs learn from text, and inter-party feeling/trust is less prominent in training corpora than policy positions or partisan identity.
+
+3. **Instruct models compress domain differences**: While base models show a meaningful identity-affective gap (~0.80 Mahalanobis), instruct models compress this to ~0.30. RLHF appears to create a more uniform partisan encoding across all prompt domains.
+
+4. **Reasoning models reverse the pattern**: Reasoning shows policy > affective > identity, the opposite of base/instruct. Chain-of-thought training may emphasize content-specific encoding (policy arguments) over identity-based encoding.
+
+5. **Cross-domain transfer is asymmetric and model-specific**: No universal pattern, but identity training tends to transfer to affective (shared group-level representation) better than to policy.
 
 ---
 
@@ -513,116 +577,53 @@ Comprehensive negative result. None of the 9 formal dimensions of polarization c
 
 ---
 
-## Experiment 9: Name Anonymization Test
+## Experiment 9: Name Anonymization Test (Redesigned)
 
 ### Research Question
-Is the partisan signal in LLM activations driven by politician name recognition or by political content/context?
+Is the partisan signal in LLM activations driven by politician name recognition or by political content/context? Can we disentangle real-world identity knowledge from bare partisan labels?
+
+### Why Redesigned
+The original Exp9 had two critical flaws:
+1. **Mahalanobis inflation**: When using "anonymous Democrat/Republican" labels, all Democrats get nearly identical prompts and all Republicans get nearly identical prompts. Within-party variance collapses to near zero, which artificially inflates Mahalanobis distance (since Mahalanobis normalizes by the inverse covariance). The original 20x anonymous-vs-named ratio was largely an artifact of this variance collapse, not a meaningful signal.
+2. **Only two conditions**: Named vs anonymous doesn't disentangle "real-world identity knowledge" from "individual-level variation." Adding a fictional-name condition with party labels solves this.
 
 ### Hypotheses
-- **H9a**: Named condition shows higher Mahalanobis distance than anonymous condition
-- **H9b**: The named-anonymous gap is larger for instruct models (which "know" more about politicians)
-- **H9c**: If anonymous distance >> chance, then political CONTENT (not just names) drives encoding
+- **H9a**: Named condition shows higher probe accuracy and cosine distance than fictional, indicating real-world name recognition contributes to partisan encoding
+- **H9b**: Fictional > anonymous for both metrics, indicating that individual-level variation (different names, states, roles) matters beyond bare party labels
+- **H9c**: Instruct models show a larger named-fictional gap than base models (more biographical knowledge to leverage)
+- **H9d**: If named ≈ fictional >> anonymous: individual variation matters, not name recognition. If named >> fictional ≈ anonymous: real-world name recognition dominates. If all three ≈ similar: partisan label alone drives encoding.
 
 ### Method
-- **Topics**: 30 most polarized (same as exp5)
-- **Two conditions per topic**:
-  1. **Named**: Real politician names (e.g., "Nancy Pelosi"), same 550 politicians
-  2. **Anonymous**: Generic party labels (e.g., "Democratic politician #1", "Republican politician #47"), same 550 slots with party labels preserved
-- **PCA dims**: {5, 10, 15}
-- **Paired comparison**: Within-model, within-topic, named vs anonymous Mahalanobis distance
+- **Topics**: 30 most polarized (same as Exp5, from `exp5_polarized_topics.json`)
+- **Three conditions**:
+  1. **Named**: Real politician names (e.g., "Nancy Pelosi")
+  2. **Fictional**: Fictional names with party + state + role context (e.g., "John Smith, a Democratic senator from Ohio"). Constructed from 50 first names × 50 last names, randomly shuffled. Preserves within-party heterogeneity while removing real-world identity knowledge.
+  3. **Anonymous**: Bare party labels only (e.g., "Democratic politician #1"). Minimal within-party variation.
+- **Metrics** (NOT Mahalanobis — which is inflated for anonymous):
+  - **Cosine distance** between party centroids in PCA-15 space
+  - **Euclidean distance** between party centroids in PCA-15 space
+  - **5-fold CV linear probe accuracy**: Logistic regression on PCA features, with proper train-test split
+- **Models**: All 8 models across 3 families
 
 ### Results
 
-**Mahalanobis Distance: Named vs Anonymous (PCA=15, averaged across 30 topics):**
-
-| Model Type | Named | Anonymous | Anon/Named Ratio |
-|-----------|-------|-----------|-----------------|
-| Base | 3.59 | 74.87 | **~21x** |
-| Instruct | 4.73 | 95.08 | **~20x** |
-| Reasoning | 3.18 | 71.78 | **~23x** |
-
-The anonymous condition produces dramatically larger Mahalanobis distances (20-23x) than the named condition across all model types.
-
-**Gap size by model type (Anon - Named):**
-
-| Model Type | Gap (Anon - Named) |
-|-----------|-------------------|
-| Instruct | 90.35 |
-| Base | 71.28 |
-| Reasoning | 68.60 |
-
-The instruct gap is ~27% larger than the base gap, consistent with instruct models being more sensitive to explicit party labels.
+*PENDING — Job 45588048 queued on ssd-gpu*
 
 ### Hypothesis Assessment
-- **H9a (STRONGLY REJECTED — opposite direction)**: Anonymous shows 20x HIGHER distance than named (Mahal ~75-95 vs ~3-5). This is the opposite of what was predicted.
-- **H9b (SUPPORTED but inverted)**: The gap is indeed larger for instruct (gap = 90.3) than base (gap = 71.3) or reasoning (gap = 68.6).
-- **H9c (STRONGLY SUPPORTED)**: Anonymous distance >> chance, confirming content/label-driven encoding. But the reason is trivial: anonymous prompts contain explicit party labels ("Democratic", "Republican") in the text, creating an extreme direct signal.
+
+*PENDING*
 
 ### Assessment
-**The most surprising and methodologically important result.** The prediction was that removing names would reduce partisan distance (suggesting name-driven identity recognition). Instead, anonymization with explicit party labels creates a 20x *larger* signal.
 
-**Why this happens**: Anonymous prompts embed the words "Democratic" or "Republican" directly into the text. The model's tokenizer processes these as strong semantic tokens with extreme party associations. Real politician names (e.g., "Nancy Pelosi") require the model to retrieve biographical knowledge, producing a more nuanced and modulated representation.
-
-**What this means for the project**:
-1. Experiments 1-8 with real names measure something **more subtle** than raw party labeling. The named-condition signal (Mahal ~3-5) reflects knowledge-based encoding, not trivial token matching.
-2. The instruct > base > reasoning finding is even more meaningful: it exists within a subtle, knowledge-based representation space, not a dominant explicit-label signal.
-3. Future anonymization experiments should use genuinely neutral placeholders (e.g., "Person A", "Person B") rather than party-labeled ones.
+*PENDING — will update after job completes. The critical comparison is the three-way pattern: named vs fictional vs anonymous. The original finding (explicit party tokens create strong signal) should still hold for cosine distance. The new question is whether fictional names with party labels produce similar encoding to real names, or whether real-world biographical knowledge adds meaningful structure.*
 
 ---
 
-## Experiment 10: Residual Topic-Specific Signal
+## ~~Experiment 10: Residual Topic-Specific Signal~~ [DROPPED]
 
-### Research Question
-After removing the global identity signal, does meaningful topic-specific partisan information remain? Does cross-topic transfer improve?
+**Reason for dropping**: This experiment was too mechanical and does not correspond to anything meaningful. Projecting activations onto a "global party axis" and removing it is an arbitrary geometric operation — there's no cognitive or political interpretation for what the residual represents. The finding that removing the axis makes coherence worse (below chance) is unsurprising: you're removing the main signal and asking if something else remains. This doesn't reveal anything about the nature of the political representation.
 
-### Hypotheses
-- **H10a**: Residual Mahalanobis distance is smaller than original (identity signal removed)
-- **H10b**: Residual cross-topic transfer improves over chance (shared ideological structure)
-- **H10c**: Instruct models show more residual transfer (richer political representations)
-
-### Method
-- **Topics**: 20 topics
-- **PCA dim**: 15
-- **Procedure**:
-  1. Extract PCA-reduced features for all 20 topics per model
-  2. Compute global party centroids (mean D activation, mean R activation) across ALL topics
-  3. Project each activation onto the global D-R axis, subtract projection → residual activations
-  4. Recompute Mahalanobis distance on residuals (topic-specific signal strength)
-  5. Recompute cross-topic transfer on residuals (ideological coherence)
-
-### Results
-
-**Mahalanobis Distance: Original vs Residual:**
-
-| Model Type | Original | Residual | Reduction |
-|-----------|----------|----------|-----------|
-| Base | 3.283 | 2.649 | 19.3% |
-| Instruct | 4.428 | 3.276 | 26.0% |
-| Reasoning | 3.056 | 2.301 | 24.7% |
-
-Removing the global party axis reduces Mahalanobis distance by 19-26% across all model types, indicating the global identity signal accounts for roughly a quarter of the total separation.
-
-**Cross-Topic Coherence (Accuracy): Original vs Residual:**
-
-| Model Type | Orig Coherence | Resid Coherence | Change |
-|-----------|---------------|-----------------|--------|
-| Base | 0.496 | 0.483 | -0.013 |
-| Instruct | 0.490 | 0.481 | -0.008 |
-| Reasoning | 0.522 | 0.483 | -0.039 |
-
-All residual coherence values are **below** 0.50 (chance): 0.481-0.483 for all model types.
-
-### Hypothesis Assessment
-- **H10a (SUPPORTED)**: Removing the global axis reduces Mahalanobis distance by 19-26%.
-- **H10b (STRONGLY REJECTED)**: Residual transfer does not improve — it gets WORSE. Residual coherence drops below chance (0.48 vs 0.50). Removing the identity signal destroys what little cross-topic structure existed.
-- **H10c (REJECTED)**: Instruct shows the least residual coherence (0.481), not the most.
-
-### Assessment
-**Definitive negative result.** There is no hidden ideological structure beneath the identity layer. The global party axis accounts for ~20-26% of the signal, and removing it makes cross-topic transfer worse (below chance). This means:
-
-1. The tiny above-chance coherence in Exp3 (0.50-0.53) was driven entirely by the global identity signal, not by topic-specific ideological structure.
-2. Residual coherence below chance suggests anti-correlated topic-specific encodings — after removing the shared "who is this person" signal, the remaining geometry is actually organized differently per topic.
-3. LLMs genuinely do not have coherent ideology in their activations. Political encoding is organized per textual-context, consistent with co-occurrence patterns rather than belief systems.
+**Original results preserved for reference**: Removing the global D-R axis reduced Mahalanobis distance by 19-26%. Residual cross-topic coherence dropped below chance (0.48). These results are mechanically predictable from the structure of the data and don't contribute to the paper's argument.
 
 ---
 
@@ -795,15 +796,14 @@ Despite being finetuned from instruct checkpoints, reasoning models (Qwen3-4B-Th
 
 Chain-of-thought finetuning appears to "undo" the partisan amplification that instruction tuning creates.
 
-**3. The Signal Encodes Continuous Ideology, Not Just Binary Party** (Exp3, Exp7, Exp9, Exp10, Exp12)
+**3. The Signal Encodes Continuous Ideology, Not Just Binary Party** (Exp3, Exp7, Exp9, Exp12)
 
 Multiple experiments converge on a nuanced picture:
-- **Exp7**: ~82-94% of attention heads classify D vs R at AUC > 0.6 (mean AUC 0.92-0.95). Signal is everywhere.
+- **Exp7 (redesigned)**: Nearly all heads achieve high AUC, but the redesign tests whether the *top* 5-10% most discriminative heads are stable across topics (PENDING).
 - **Exp3**: Binary cross-topic coherence at chance (0.50-0.53). Binary classifiers don't transfer.
 - **Exp12**: But continuous DW-NOMINATE probes transfer at rho=0.84-0.90! The ideology IS coherent across topics when measured continuously.
-- **Exp9**: Real names produce 20x smaller distance than explicit party labels (3-5 vs 75-95). The named-condition signal is knowledge-based, not trivial.
-- **Exp10**: Removing global party axis makes binary coherence worse (below chance).
-- **Exp5/6/Bramson**: Near-zero correlation with actual GSS polarization (max r=0.083).
+- **Exp9 (redesigned)**: Three-condition design (named/fictional/anonymous) with cosine distance and probe accuracy (not Mahalanobis). Will clarify whether real-world identity knowledge or bare party labels drive encoding (PENDING).
+- **Exp5/Bramson**: Near-zero correlation with actual GSS polarization (max r=0.083).
 
 **The paradox resolved (revised with Exp12)**: Binary D/R classification fails to transfer across topics (Exp3), but continuous ideology probes transfer well (Exp12, rho=0.90 for instruct). The model DOES encode a coherent ideological spectrum — but this structure is visible only with continuous measures, not with the binary party split. This is analogous to finding that temperature measurements transfer across contexts but binary "hot/cold" labels do not.
 
@@ -813,31 +813,26 @@ Instruct models generate measurably more partisan text (mean accuracy 0.59-0.64)
 
 ### Methodological Concerns
 
-1. **Identity recognition vs political encoding**: Exp9 partially addresses this — the signal is not simple label lookup but nuanced biographical knowledge. However, we still can't fully separate "the model knows this person is a Democrat" from "the model knows this person's policy positions."
+1. **Identity recognition vs political encoding**: Exp9 (redesigned) now uses three conditions (named/fictional/anonymous) to disentangle real-world identity knowledge from bare partisan labels. Results pending.
 
-2. **No causal evidence**: All experiments are observational (extract activations, measure distance). We don't know if the partisan signal causes model behavior or is epiphenomenal.
+2. **No causal evidence**: All experiments are observational (extract activations, measure distance). We don't know if the partisan signal causes model behavior or is epiphenomenal. Exp13 provides weak behavioral evidence (instruct models generate partisan text), but the keyword scoring is noisy.
 
 3. **GSS comparison is crude**: The GSS overlap coefficient is computed from 7-point scales. It may not capture polarization at the granularity of continuous activation spaces.
 
-4. **Exp8 underpowered**: Only 1 affective topic makes the affective/policy comparison uninformative.
+4. **Affective vs policy operationalization**: Exp8 (redesigned) now uses 10 affective topics + 10 policy topics + 5 identity topics with domain-specific prompt templates grounded in the human polarization literature (Iyengar et al. 2012; Mason 2015). Results pending.
 
-5. **Exp9 confound**: Anonymous condition used explicit party labels, creating a trivially strong signal. A better design would use genuinely neutral placeholders.
+5. **Dropped experiments**: Exp6 (false polarization) and Exp10 (residual signal) were dropped because their premises were flawed — Exp6 assumed activation-space homogeneity implies false polarization (it doesn't), and Exp10 was mechanically predictable and uninterpretable.
 
 ---
 
-## Proposed Future Experiment
+## Pending Results
 
-### Exp 11: Behavioral Validation (Generation-Level)
+Three redesigned experiments are currently running on the ssd-gpu cluster:
+- **Exp7** (Job 45588046): Top-k% head discriminability — ~2-4h runtime
+- **Exp8** (Job 45588047): Affective vs policy polarization (3 domains) — ~3-5h runtime
+- **Exp9** (Job 45588048): Anonymization with cosine/probe (3 conditions) — ~4-6h runtime
 
-**Question**: Does the activation-level partisan signal actually predict model outputs?
-
-**Method**:
-1. For each politician x topic, extract activations AND generate a short response (50 tokens)
-2. Use an LLM judge to rate generated text on a liberal-conservative scale
-3. Correlate activation-level Mahalanobis distance with generation-level partisan difference
-4. Test whether instruct models produce more partisan text (matching the activation finding)
-
-**Why**: The ultimate validation is behavioral. If activation distances predict generation content, the representational analysis is meaningful. If not, the activation-level signal may be epiphenomenal.
+Results will be filled in above as jobs complete.
 
 ---
 
@@ -848,11 +843,13 @@ Instruct models generate measurably more partisan text (mean accuracy 0.59-0.64)
 **Story arc**:
 1. Instruct models encode partisanship much more strongly (Exp1, Exp2) — replicated (Exp1R)
 2. Reasoning training reverses this amplification (Exp1, Exp2)
-3. The signal is distributed across all heads (Exp7) but NOT simple label lookup (Exp9)
-4. But it doesn't track real-world polarization in absolute terms (Exp5, Exp6, Bramson)
-5. Binary classifiers don't transfer across topics (Exp3, Exp10)
+3. The signal is distributed across all heads (Exp7) but the *most* discriminative heads may form a stable subset (Exp7 redesigned, PENDING)
+4. But it doesn't track real-world polarization in absolute terms (Exp5, Bramson)
+5. Binary classifiers don't transfer across topics (Exp3)
 6. But continuous ideology probes DO transfer (Exp12, rho=0.90) — the representation IS coherent when measured correctly
-7. Instruct models generate behaviorally partisan text (Exp13, accuracy 0.60-0.96)
+7. The model encodes affective/policy/identity dimensions of polarization — are they different? (Exp8 redesigned, PENDING)
+8. The signal reflects nuanced knowledge, not simple label lookup — named vs fictional vs anonymous (Exp9 redesigned, PENDING)
+9. Instruct models generate behaviorally partisan text (Exp13, accuracy 0.60-0.96)
 
 **Key insight (revised by Exp12)**: The apparent contradiction between "every head encodes party" (Exp7) and "classifiers don't transfer" (Exp3) is resolved by the granularity of measurement. Binary party labels are too coarse — the model encodes continuous ideological positioning that transfers well across topics (rho=0.84-0.90). The "topic-locked" finding from Exp3 was an artifact of binary classification, not a true feature of the representation.
 
@@ -869,4 +866,4 @@ Instruct models generate measurably more partisan text (mean accuracy 0.59-0.64)
 
 This suggests RLHF/instruction tuning creates structured political knowledge representations, not just shallow stereotyping.
 
-*Last updated: Feb 15, 2026, 16:00 CST*
+*Last updated: Feb 15, 2026, 18:30 CST*

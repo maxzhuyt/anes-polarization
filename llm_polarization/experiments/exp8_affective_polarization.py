@@ -1,28 +1,42 @@
 """
-Experiment 8: Affective vs Policy Polarization
+Experiment 8: Affective vs Policy Polarization (Redesigned)
 
 Research Question:
-    Do LLMs encode "affective" (identity/feeling-based) polarization differently
-    from "policy" (issue-based) polarization? Do models conflate identity with policy?
+    Do LLMs encode affective polarization (inter-party hostility/warmth)
+    differently from policy polarization (issue-position divergence)?
 
-Hypotheses:
-    H8a: Affective topics show higher model separation than policy topics
-    H8b: Instruct models conflate affective/policy more than base models
-    H8c: Cross-domain transfer (affective->policy) is higher for instruct than base
+Background:
+    In the human literature:
+    - Policy polarization: divergence in issue positions between parties.
+      Measured via survey items on specific policies (spending, abortion, guns).
+      It is about *what you believe*.
+    - Affective polarization: hostility/warmth toward the out-party irrespective
+      of policy. Measured via feeling thermometers, social distance, trait ratings.
+      Key work: Iyengar, Sood, & Lelkes (2012); Mason (2015).
+      It is about *how you feel about the other side*.
 
-Method:
-    - Use exp8_affective_topics.json (curated affective + policy topics)
-    - Extract activations and compute Mahalanobis distance for each
-    - Compare affective vs policy topic separation
-    - Test cross-domain classifier transfer
+Operationalization for LLMs:
+    We use three distinct prompt types that isolate different aspects:
 
-Analysis:
-    - Compare mean distances: affective vs policy by model type
-    - Cross-domain transfer: train on affective, test on policy (and vice versa)
-    - Correlation: affective separation vs policy separation per model
-    - Representational similarity: CKA or CCA between affective and policy spaces
+    1. **Policy prompts**: "What does [politician] think about [policy topic]?"
+       Uses real GSS policy topics. Activations reflect policy-stance encoding.
 
-Runtime: ~2 hours on H100
+    2. **Affective prompts**: "How does [politician] feel about [out-party]?"
+       Novel prompts about inter-party feelings, trust, social distance.
+       Activations reflect affective/identity-based encoding.
+
+    3. **Identity prompts**: "Describe [politician] as a political figure."
+       No policy or affective content. Activations reflect pure partisan
+       identity encoding.
+
+    The key comparison is whether D-R separation (Mahalanobis) is larger for
+    affective prompts than policy prompts. If so, the model has internalized
+    affective polarization beyond what policy disagreements explain.
+
+    Cross-domain transfer (train on policy, test on affective) is standard
+    and retained as a secondary analysis.
+
+Runtime: ~3 hours on H100/A100
 """
 
 import os
@@ -40,15 +54,14 @@ import seaborn as sns
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
-from sklearn.metrics import accuracy_score, roc_auc_score
-from scipy.stats import ttest_ind, pearsonr
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import StratifiedKFold
 import torch
 
 # Import shared utilities
 sys.path.insert(0, str(Path(__file__).parent))
 from shared_utils import (
     set_random_seeds,
-    load_polarization_data,
     compute_pca_and_distance,
     save_checkpoint,
     setup_plot_style,
@@ -72,68 +85,112 @@ PCA_DIM = 15
 MAX_LENGTH = 128
 POLITICIAN_CSV = "/project/jevans/maxzhuyt/gss_polarization/data/politicians.csv"
 
-BASE_TEMPLATES = {
-    "public_issues": "{name} makes a statement on {topic}:",
-    "private_life":  "When asked about {topic}, {name} says",
-}
-INSTRUCT_TEMPLATE_KEYS = {
-    "public_issues": "default",
-    "private_life":  "opinion",
-}
+# Prompt templates designed for each domain
+# Policy: asks about specific issue positions
+POLICY_BASE_TEMPLATE = "{name} makes a statement on {topic}:"
+POLICY_INSTRUCT_TEMPLATE = "Generate a statement by {name} on {topic}."
 
-# Affective vs Policy topic classification
-# Affective: topics about feelings, trust, identity, warmth
-# Policy: topics about specific policy positions
-AFFECTIVE_KEYWORDS = [
-    'conf', 'trust', 'feel', 'like', 'fair', 'warm',
-    'affect', 'close', 'opin', 'therm',
-]
-POLICY_KEYWORDS = [
-    'ab', 'nat', 'gun', 'tax', 'cap', 'gov', 'spend',
-    'lib', 'col', 'spk', 'disc', 'pol', 'grn', 'wrk',
-]
+# Affective: asks about feelings/attitudes toward the other party
+AFFECTIVE_BASE_TEMPLATE = "{name} discusses {topic}:"
+AFFECTIVE_INSTRUCT_TEMPLATE = "How would {name} respond when asked about {topic}?"
 
-def classify_topic(topic_name: str) -> str:
-    """Classify topic as 'affective' or 'policy' based on name."""
-    name_lower = topic_name.lower()
-    for kw in AFFECTIVE_KEYWORDS:
-        if kw in name_lower:
-            return 'affective'
-    for kw in POLICY_KEYWORDS:
-        if kw in name_lower:
-            return 'policy'
-    return 'policy'  # Default to policy
+# Identity: asks about partisan self-concept (no policy content)
+IDENTITY_BASE_TEMPLATE = "{name} describes {topic}:"
+IDENTITY_INSTRUCT_TEMPLATE = "How would {name} talk about {topic}?"
+
+
+# =============================================================================
+# Prompt Generation
+# =============================================================================
+
+def generate_domain_prompts(
+    topic_desc: str,
+    politician_names: List[str],
+    domain: str,
+    model_type: str,
+) -> tuple:
+    """Generate prompts for a specific domain (policy/affective/identity).
+
+    Returns:
+        (prompts, system_msg)
+    """
+    if model_type == "base":
+        templates = {
+            "policy": POLICY_BASE_TEMPLATE,
+            "affective": AFFECTIVE_BASE_TEMPLATE,
+            "identity": IDENTITY_BASE_TEMPLATE,
+        }
+        template = templates[domain]
+        prompts = [template.format(name=name, topic=topic_desc)
+                   for name in politician_names]
+        system_msg = ""
+    else:
+        templates = {
+            "policy": POLICY_INSTRUCT_TEMPLATE,
+            "affective": AFFECTIVE_INSTRUCT_TEMPLATE,
+            "identity": IDENTITY_INSTRUCT_TEMPLATE,
+        }
+        template = templates[domain]
+        prompts = [template.format(name=name, topic=topic_desc)
+                   for name in politician_names]
+        system_msg = SYSTEM_MSG_POLITICIAN
+
+    return prompts, system_msg
+
+
+def compute_cv_probe_accuracy(
+    features: np.ndarray,
+    labels: np.ndarray,
+    n_folds: int = 5,
+) -> float:
+    """Cross-validated linear probe accuracy."""
+    skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
+    clf = LogisticRegression(max_iter=1000, random_state=42)
+    scaler = StandardScaler()
+
+    accuracies = []
+    for train_idx, test_idx in skf.split(features, labels):
+        X_train = scaler.fit_transform(features[train_idx])
+        X_test = scaler.transform(features[test_idx])
+        clf.fit(X_train, labels[train_idx])
+        acc = accuracy_score(labels[test_idx], clf.predict(X_test))
+        accuracies.append(acc)
+
+    return np.mean(accuracies)
+
 
 # =============================================================================
 # Main Experiment
 # =============================================================================
 
 def run_experiment():
-    """Run Experiment 8: Affective vs Policy Polarization."""
+    """Run Experiment 8: Affective vs Policy Polarization (Redesigned)."""
 
     print("="*80)
-    print("EXPERIMENT 8: AFFECTIVE VS POLICY POLARIZATION")
+    print("EXPERIMENT 8: AFFECTIVE VS POLICY POLARIZATION (REDESIGNED)")
     print("="*80)
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print()
+    print("Operationalization:")
+    print("  Policy:    GSS issue topics (what politicians believe)")
+    print("  Affective: Inter-party feelings/trust/social distance")
+    print("  Identity:  Partisan self-concept (no policy content)")
     print()
 
     set_random_seeds(42)
 
     # Load topics
-    print("Loading affective polarization topics...")
-    with open(TOPIC_LISTS_DIR / "exp8_affective_topics.json") as f:
-        topics = json.load(f)
-    print(f"Loaded {len(topics)} topics")
+    print("Loading redesigned topic lists...")
+    with open(TOPIC_LISTS_DIR / "exp8_redesigned_topics.json") as f:
+        all_topics = json.load(f)
 
-    # Classify topics
-    topic_types = {name: classify_topic(name) for name in topics}
-    n_affective = sum(1 for t in topic_types.values() if t == 'affective')
-    n_policy = sum(1 for t in topic_types.values() if t == 'policy')
-    print(f"  Affective topics: {n_affective}")
-    print(f"  Policy topics: {n_policy}")
+    policy_topics = all_topics["policy"]
+    affective_topics = all_topics["affective"]
+    identity_topics = all_topics["identity"]
 
-    # Load GSS data
-    gss_df = load_polarization_data()
+    print(f"  Policy topics:    {len(policy_topics)}")
+    print(f"  Affective topics: {len(affective_topics)}")
+    print(f"  Identity topics:  {len(identity_topics)}")
 
     # Load politicians
     print("\nLoading politicians...")
@@ -146,7 +203,7 @@ def run_experiment():
 
     # Results
     all_results = []
-    all_activations = {}  # model_name -> {topic_name: activations}
+    domain_features = {}  # model_name -> domain -> list of (N, pca_dim) arrays
 
     # Run all models
     for family_name, family_config in MODEL_FAMILIES.items():
@@ -162,116 +219,110 @@ def run_experiment():
 
             print(f"\n--- Running {model_name} ({model_type}) ---")
 
-            # Load model
             model, tokenizer = load_model(model_path)
             if model_type == "base":
                 tokenizer.chat_template = None
 
-            # Store PCA-reduced features per topic (not full 4D, saves memory)
-            model_features = {}  # topic -> (N, pca_dim) reduced features
-            category = "public_issues"
+            model_domain_features = {"policy": [], "affective": [], "identity": []}
 
-            for topic_idx, (topic_name, topic_desc) in enumerate(topics.items(), 1):
-                print(f"  [{topic_idx}/{len(topics)}] {topic_name} ({topic_types[topic_name]})")
+            # Process each domain
+            all_domain_topics = [
+                ("policy", policy_topics),
+                ("affective", affective_topics),
+                ("identity", identity_topics),
+            ]
 
-                if model_type == "base":
-                    template = BASE_TEMPLATES[category]
-                    prompts = [template.format(name=name, topic=topic_desc)
-                               for name in politician_names]
-                    system_msg = ""
-                else:
-                    template_key = INSTRUCT_TEMPLATE_KEYS[category]
-                    template = POLITICIAN_TEMPLATES[template_key]
-                    prompts = generate_politician_prompts(
-                        topic_desc, politician_names, template=template
+            for domain, topics in all_domain_topics:
+                print(f"\n  === Domain: {domain.upper()} ({len(topics)} topics) ===")
+
+                for topic_idx, (topic_name, topic_desc) in enumerate(topics.items(), 1):
+                    print(f"    [{topic_idx}/{len(topics)}] {topic_name}")
+
+                    prompts, system_msg = generate_domain_prompts(
+                        topic_desc, politician_names, domain, model_type
                     )
-                    system_msg = SYSTEM_MSG_POLITICIAN
 
-                activations = extract_heads_batched(
-                    model, tokenizer, prompts, system_msg,
-                    batch_size=batch_size, max_length=MAX_LENGTH,
-                )
+                    activations = extract_heads_batched(
+                        model, tokenizer, prompts, system_msg,
+                        batch_size=batch_size, max_length=MAX_LENGTH,
+                    )
 
-                # Compute PCA and distance
-                pca_result = compute_pca_and_distance(
-                    activations, politician_labels, pca_dim=PCA_DIM
-                )
+                    # Compute PCA + Mahalanobis
+                    pca_result = compute_pca_and_distance(
+                        activations, politician_labels, pca_dim=PCA_DIM
+                    )
 
-                result = {
-                    'family': family_name,
-                    'variant': variant_name,
-                    'model_name': model_name,
-                    'model_type': model_type,
-                    'topic_name': topic_name,
-                    'topic_type': topic_types[topic_name],
-                    'mahalanobis_dist': pca_result['mahalanobis_dist'],
-                    'variance_explained': pca_result['variance_explained'],
-                }
+                    # CV probe accuracy on PCA features
+                    probe_acc = compute_cv_probe_accuracy(
+                        pca_result['pca_activations'], politician_labels
+                    )
 
-                # GSS data
-                gss_row = gss_df[gss_df['variable'] == topic_name]
-                if len(gss_row) > 0:
-                    result['gss_polarization'] = gss_row.iloc[0]['polarization']
-                else:
-                    result['gss_polarization'] = np.nan
+                    result = {
+                        'family': family_name,
+                        'variant': variant_name,
+                        'model_name': model_name,
+                        'model_type': model_type,
+                        'domain': domain,
+                        'topic_name': topic_name,
+                        'mahalanobis_dist': pca_result['mahalanobis_dist'],
+                        'variance_explained': pca_result['variance_explained'],
+                        'probe_accuracy': probe_acc,
+                    }
+                    all_results.append(result)
 
-                all_results.append(result)
+                    model_domain_features[domain].append(pca_result['pca_activations'])
 
-                # Store PCA-reduced features (tiny: 550 × 15 × 4 = 33 KB)
-                model_features[topic_name] = pca_result['pca_activations']
+                    print(f"      Mahal={pca_result['mahalanobis_dist']:.3f}, "
+                          f"Probe={probe_acc:.3f}")
 
-                # Free full activations
-                del activations
-                torch.cuda.empty_cache()
-                gc.collect()
+                    del activations
+                    torch.cuda.empty_cache()
+                    gc.collect()
 
             # Unload model
             del model, tokenizer
             torch.cuda.empty_cache()
             gc.collect()
 
-            # Cross-domain transfer test using PCA-reduced features
+            # Cross-domain transfer
             print(f"\n  Computing cross-domain transfer...")
-            affective_topics = [t for t in topics if topic_types[t] == 'affective']
-            policy_topics = [t for t in topics if topic_types[t] == 'policy']
+            domains = ["policy", "affective", "identity"]
+            transfer_results = {}
 
-            if affective_topics and policy_topics:
-                # Concatenate per-topic PCA features across domains
-                aff_features = np.concatenate([model_features[t] for t in affective_topics], axis=1)
-                pol_features = np.concatenate([model_features[t] for t in policy_topics], axis=1)
+            for src_domain in domains:
+                src_feats = np.concatenate(model_domain_features[src_domain], axis=1)
+                pca_src = PCA(n_components=min(PCA_DIM, src_feats.shape[1]))
+                src_pca = pca_src.fit_transform(StandardScaler().fit_transform(src_feats))
 
-                # PCA reduce the concatenated features to PCA_DIM
-                pca_aff = PCA(n_components=min(PCA_DIM, aff_features.shape[1]))
-                aff_pca = pca_aff.fit_transform(StandardScaler().fit_transform(aff_features))
+                clf = LogisticRegression(max_iter=1000, random_state=42)
+                clf.fit(src_pca, politician_labels)
+                self_acc = accuracy_score(politician_labels, clf.predict(src_pca))
+                transfer_results[f"{src_domain}_self"] = self_acc
 
-                pca_pol = PCA(n_components=min(PCA_DIM, pol_features.shape[1]))
-                pol_pca = pca_pol.fit_transform(StandardScaler().fit_transform(pol_features))
+                for tgt_domain in domains:
+                    if tgt_domain == src_domain:
+                        continue
+                    tgt_feats = np.concatenate(model_domain_features[tgt_domain], axis=1)
+                    pca_tgt = PCA(n_components=min(PCA_DIM, tgt_feats.shape[1]))
+                    tgt_pca = pca_tgt.fit_transform(StandardScaler().fit_transform(tgt_feats))
 
-                # Train on affective, test on policy
-                clf_aff = LogisticRegression(max_iter=1000, random_state=42)
-                clf_aff.fit(aff_pca, politician_labels)
-                aff_to_pol_acc = accuracy_score(politician_labels, clf_aff.predict(pol_pca))
+                    # Retrain on src PCA space, apply to tgt PCA space
+                    # (independent PCA spaces, so this tests shared linear structure)
+                    clf_t = LogisticRegression(max_iter=1000, random_state=42)
+                    clf_t.fit(src_pca, politician_labels)
+                    transfer_acc = accuracy_score(politician_labels, clf_t.predict(tgt_pca))
+                    transfer_results[f"{src_domain}_to_{tgt_domain}"] = transfer_acc
 
-                # Train on policy, test on affective
-                clf_pol = LogisticRegression(max_iter=1000, random_state=42)
-                clf_pol.fit(pol_pca, politician_labels)
-                pol_to_aff_acc = accuracy_score(politician_labels, clf_pol.predict(aff_pca))
+            print(f"    Transfer results:")
+            for k, v in transfer_results.items():
+                print(f"      {k}: {v:.4f}")
 
-                # Self-accuracy
-                aff_self = accuracy_score(politician_labels, clf_aff.predict(aff_pca))
-                pol_self = accuracy_score(politician_labels, clf_pol.predict(pol_pca))
+            # Attach transfer to all results for this model
+            for r in all_results:
+                if r['model_name'] == model_name:
+                    r.update(transfer_results)
 
-                print(f"    Affective self: {aff_self:.4f}, Policy self: {pol_self:.4f}")
-                print(f"    Aff->Pol transfer: {aff_to_pol_acc:.4f}")
-                print(f"    Pol->Aff transfer: {pol_to_aff_acc:.4f}")
-
-                # Add to results
-                for r in all_results:
-                    if r['model_name'] == model_name:
-                        r['aff_to_pol_transfer'] = aff_to_pol_acc
-                        r['pol_to_aff_transfer'] = pol_to_aff_acc
-                        r['aff_self_accuracy'] = aff_self
-                        r['pol_self_accuracy'] = pol_self
+            domain_features[model_name] = model_domain_features
 
             # Checkpoint
             save_checkpoint(
@@ -279,7 +330,7 @@ def run_experiment():
                 EXPERIMENT_NAME, model_name
             )
 
-            del model_features
+            del model_domain_features
             gc.collect()
 
     # ==========================================================================
@@ -297,26 +348,39 @@ def run_experiment():
     df.to_csv(csv_path, index=False)
     print(f"Saved results: {csv_path}")
 
-    # Affective vs Policy distance comparison
-    print("\n--- Mahalanobis Distance: Affective vs Policy ---")
-    for model_type in ['base', 'instruct', 'reasoning']:
-        df_mt = df[df['model_type'] == model_type]
-        aff = df_mt[df_mt['topic_type'] == 'affective']['mahalanobis_dist']
-        pol = df_mt[df_mt['topic_type'] == 'policy']['mahalanobis_dist']
+    # --- Key comparison: Mahalanobis by domain ---
+    print("\n--- Mahalanobis Distance by Domain and Model Type ---")
+    print(f"{'Model Type':<12} {'Policy':>10} {'Affective':>10} {'Identity':>10}")
+    print("-" * 44)
+    for mt in ['base', 'instruct', 'reasoning']:
+        vals = {}
+        for domain in ['policy', 'affective', 'identity']:
+            sub = df[(df['model_type'] == mt) & (df['domain'] == domain)]
+            vals[domain] = sub['mahalanobis_dist'].mean() if len(sub) > 0 else float('nan')
+        print(f"{mt:<12} {vals['policy']:>10.3f} {vals['affective']:>10.3f} {vals['identity']:>10.3f}")
 
-        if len(aff) > 0 and len(pol) > 0:
-            t, p = ttest_ind(aff, pol)
-            print(f"  {model_type}: Aff mean={aff.mean():.3f}, "
-                  f"Pol mean={pol.mean():.3f}, t={t:.3f}, p={p:.4f}")
+    # --- Probe accuracy by domain ---
+    print("\n--- Probe Accuracy by Domain and Model Type ---")
+    print(f"{'Model Type':<12} {'Policy':>10} {'Affective':>10} {'Identity':>10}")
+    print("-" * 44)
+    for mt in ['base', 'instruct', 'reasoning']:
+        vals = {}
+        for domain in ['policy', 'affective', 'identity']:
+            sub = df[(df['model_type'] == mt) & (df['domain'] == domain)]
+            vals[domain] = sub['probe_accuracy'].mean() if len(sub) > 0 else float('nan')
+        print(f"{mt:<12} {vals['policy']:>10.3f} {vals['affective']:>10.3f} {vals['identity']:>10.3f}")
 
-    # Cross-domain transfer summary
-    print("\n--- Cross-Domain Transfer ---")
-    transfer_cols = ['aff_to_pol_transfer', 'pol_to_aff_transfer']
-    for col in transfer_cols:
-        if col in df.columns:
-            summary = df.groupby('model_type')[col].first()
-            print(f"  {col}:")
-            print(summary.round(4))
+    # --- Per-model breakdown ---
+    print("\n--- Per-Model Mahalanobis (mean across topics) ---")
+    pivot = df.groupby(['model_name', 'domain'])['mahalanobis_dist'].mean().unstack(fill_value=0)
+    print(pivot.round(3).to_string())
+
+    # --- Cross-domain transfer summary ---
+    print("\n--- Cross-Domain Transfer Accuracy ---")
+    transfer_cols = [c for c in df.columns if '_to_' in c or '_self' in c]
+    if transfer_cols:
+        df_transfer = df.groupby(['model_name', 'model_type'])[transfer_cols].first().reset_index()
+        print(df_transfer[['model_name'] + transfer_cols].round(4).to_string(index=False))
 
     # ==========================================================================
     # Plots
@@ -324,61 +388,92 @@ def run_experiment():
 
     setup_plot_style()
 
-    # Plot 1: Distance by topic type and model type
+    # Plot 1: Mahalanobis by domain and model type
     fig, ax = plt.subplots(figsize=(10, 6))
-
-    sns.boxplot(data=df, x='model_type', y='mahalanobis_dist', hue='topic_type', ax=ax,
-                order=['base', 'instruct', 'reasoning'])
-    ax.set_title('Partisan Separation: Affective vs Policy Topics')
-    ax.set_ylabel('Mahalanobis Distance')
+    sns.boxplot(data=df, x='model_type', y='mahalanobis_dist', hue='domain', ax=ax,
+                order=['base', 'instruct', 'reasoning'],
+                hue_order=['policy', 'affective', 'identity'],
+                palette=['#3498db', '#e74c3c', '#2ecc71'])
+    ax.set_title('Partisan Separation by Prompt Domain')
+    ax.set_ylabel('Mahalanobis Distance (PCA-15)')
     ax.set_xlabel('Model Type')
-    ax.legend(title='Topic Type')
-
+    ax.legend(title='Domain')
     plt.tight_layout()
-    save_figure(fig, EXPERIMENT_NAME, 'affective_vs_policy')
+    save_figure(fig, EXPERIMENT_NAME, 'mahal_by_domain')
     plt.close()
 
-    # Plot 2: By family
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    # Plot 2: Probe accuracy by domain and model type
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.boxplot(data=df, x='model_type', y='probe_accuracy', hue='domain', ax=ax,
+                order=['base', 'instruct', 'reasoning'],
+                hue_order=['policy', 'affective', 'identity'],
+                palette=['#3498db', '#e74c3c', '#2ecc71'])
+    ax.set_title('Linear Probe Accuracy by Prompt Domain')
+    ax.set_ylabel('5-Fold CV Accuracy')
+    ax.set_xlabel('Model Type')
+    ax.axhline(0.5, color='gray', linestyle='--', alpha=0.3, label='Chance')
+    ax.legend(title='Domain')
+    plt.tight_layout()
+    save_figure(fig, EXPERIMENT_NAME, 'probe_by_domain')
+    plt.close()
+
+    # Plot 3: Per-family breakdown
+    n_families = len(MODEL_FAMILIES)
+    fig, axes = plt.subplots(1, n_families, figsize=(6*n_families, 5))
+    if n_families == 1:
+        axes = [axes]
 
     for idx, family_name in enumerate(MODEL_FAMILIES.keys()):
         ax = axes[idx]
         df_fam = df[df['family'] == family_name]
 
         sns.barplot(data=df_fam, x='model_type', y='mahalanobis_dist',
-                   hue='topic_type', ax=ax,
-                   order=['base', 'instruct', 'reasoning'])
+                   hue='domain', ax=ax,
+                   order=['base', 'instruct', 'reasoning'],
+                   hue_order=['policy', 'affective', 'identity'],
+                   palette=['#3498db', '#e74c3c', '#2ecc71'],
+                   ci=None)
         ax.set_title(f'{family_name}')
         ax.set_ylabel('Mahalanobis Distance')
         ax.set_xlabel('Model Type')
-        ax.legend(title='Topic Type', fontsize=8)
+        ax.legend(title='Domain', fontsize=8)
 
     plt.tight_layout()
-    save_figure(fig, EXPERIMENT_NAME, 'affective_by_family')
+    save_figure(fig, EXPERIMENT_NAME, 'mahal_by_family_domain')
     plt.close()
 
-    # Plot 3: Cross-domain transfer
-    if 'aff_to_pol_transfer' in df.columns:
-        fig, ax = plt.subplots(figsize=(8, 6))
+    # Plot 4: Cross-domain transfer heatmap (for each model type)
+    if transfer_cols:
+        fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+        domains = ['policy', 'affective', 'identity']
 
-        # Get one row per model (transfer is same for all topics of same model)
-        df_transfer = df.groupby(['model_name', 'model_type', 'family']).first().reset_index()
+        for idx, mt in enumerate(['base', 'instruct', 'reasoning']):
+            ax = axes[idx]
+            sub = df_transfer[df_transfer['model_type'] == mt]
 
-        x = np.arange(len(df_transfer))
-        width = 0.35
+            if len(sub) == 0:
+                ax.set_title(f'{mt} (no data)')
+                continue
 
-        ax.bar(x - width/2, df_transfer['aff_to_pol_transfer'], width,
-               label='Affective -> Policy', alpha=0.8)
-        ax.bar(x + width/2, df_transfer['pol_to_aff_transfer'], width,
-               label='Policy -> Affective', alpha=0.8)
+            # Build transfer matrix
+            transfer_mat = np.zeros((3, 3))
+            for i, src in enumerate(domains):
+                for j, tgt in enumerate(domains):
+                    if i == j:
+                        col = f"{src}_self"
+                    else:
+                        col = f"{src}_to_{tgt}"
+                    if col in sub.columns:
+                        transfer_mat[i, j] = sub[col].mean()
 
-        ax.set_xticks(x)
-        ax.set_xticklabels(df_transfer['model_name'], rotation=45, ha='right')
-        ax.set_ylabel('Transfer Accuracy')
-        ax.set_title('Cross-Domain Transfer: Affective <-> Policy')
-        ax.axhline(0.5, color='red', linestyle='--', alpha=0.3, label='Chance')
-        ax.legend()
+            sns.heatmap(transfer_mat, ax=ax, annot=True, fmt='.3f',
+                       xticklabels=domains, yticklabels=domains,
+                       vmin=0.4, vmax=1.0, cmap='RdYlGn')
+            ax.set_title(f'{mt}: Train (row) → Test (col)')
+            ax.set_xlabel('Test Domain')
+            ax.set_ylabel('Train Domain')
 
+        plt.suptitle('Cross-Domain Transfer Accuracy', fontsize=14)
         plt.tight_layout()
         save_figure(fig, EXPERIMENT_NAME, 'cross_domain_transfer')
         plt.close()
