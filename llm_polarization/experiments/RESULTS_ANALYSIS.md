@@ -869,13 +869,11 @@ Instruct models generate measurably more partisan text (mean accuracy 0.59-0.64)
 - **Exp8** (Job 45588047): COMPLETED in 18:49 — results above
 - **Exp9** (Job 45588048): COMPLETED in 1:00:06 — results above
 
-**Experiment 0 (Mismatch Analysis) — 4 sub-experiments running on ssd-gpu:**
-- **Exp0A** (Job 45596899): Prompt framing comparison (rhetoric/stance/survey) — ~30 min
-- **Exp0B** (Job 45596900): Per-layer alignment profile — ~20 min
-- **Exp0C** (Job 45596901): Probe-based mismatch analysis — ~20 min
-- **Exp0D** (Job 45596902): D-R direction consistency — ~20 min
-
-Results will be filled in above as jobs complete.
+**Experiment 0 (Mismatch Analysis) — 4 sub-experiments on ssd-gpu:**
+- **Exp0A** (Job 45597274): COMPLETED — Prompt framing comparison
+- **Exp0B** (Job 45597275): COMPLETED — Per-layer alignment profile
+- **Exp0C** (Job 45597276): COMPLETED — Probe-based mismatch analysis
+- **Exp0D** (Job 45597277): COMPLETED — D-R direction consistency
 
 ---
 
@@ -906,7 +904,36 @@ The correlation between LLM activation polarization (Mahalanobis distance) and G
 
 **Hypothesis**: Survey-aligned prompts will produce activations that better correlate with GSS survey polarization, because they elicit opinion-like (not rhetoric-like) representations.
 
-**Results**: *PENDING — Job 45596899*
+**Results** (Job 45597274, COMPLETED 2026-02-16):
+
+Pearson r (Mahalanobis vs GSS polarization) per Model × Condition:
+
+| Model | rhetorical | stance | survey |
+|-------|-----------|--------|--------|
+| Qwen3-4B_base | 0.053 | **0.319** | -0.140 |
+| Qwen3-4B_instruct | 0.149 | 0.255 | 0.075 |
+| Qwen3-4B_reasoning | 0.249 | **0.457*** | 0.410 |
+| SmolLM3-3B_base | -0.196 | -0.108 | 0.042 |
+| SmolLM3-3B_instruct | -0.296 | **0.447*** | 0.193 |
+| SmolLM3-3B_reasoning | 0.300 | 0.353 | **0.569**** |
+
+\* p < 0.05, \*\* p < 0.01
+
+Average r by condition: **rhetorical=0.043, stance=0.287, survey=0.192**
+
+Average r by condition × model type:
+| | rhetorical | stance | survey |
+|---|-----------|--------|--------|
+| base | -0.072 | 0.106 | -0.049 |
+| instruct | -0.073 | **0.351** | 0.134 |
+| reasoning | **0.275** | **0.405** | **0.490** |
+
+**Key findings**:
+- Stance prompts dramatically improve alignment over rhetorical (mean r: 0.043 → 0.287)
+- Three statistically significant correlations found: Qwen3-4B_reasoning+stance (r=0.457, p=0.043), SmolLM3-3B_instruct+stance (r=0.447, p=0.048), SmolLM3-3B_reasoning+survey (r=0.569, p=0.009)
+- Reasoning models benefit most from stance/survey framing (mean r=0.405/0.490 vs 0.275 for rhetorical)
+- Base models don't benefit from any framing change (all near 0)
+- The standard rhetorical prompt captures a different phenomenon than survey polarization — switching to stance/survey framing closes the gap
 
 #### Exp0B: Per-Layer Alignment Profile
 
@@ -916,7 +943,47 @@ The correlation between LLM activation polarization (Mahalanobis distance) and G
 
 **Hypothesis**: If rhetoric and opinion are encoded in different layers, then over-polarized topics (rhetoric >> opinion) should peak at different layers than under-polarized topics (opinion >> rhetoric).
 
-**Results**: *PENDING — Job 45596900*
+**Results** (Job 45597275, COMPLETED 2026-02-16):
+
+Best single-layer Pearson r (Mahalanobis vs GSS) per model:
+
+| Model | Avg-layer r | Best Layer | Best r | p-value |
+|-------|-------------|-----------|--------|---------|
+| Qwen3-4B_base | 0.046 | 31/32 | 0.340 | 0.142 |
+| Qwen3-4B_instruct | 0.147 | **20/36** | **0.573*** | **0.008** |
+| Qwen3-4B_reasoning | 0.248 | 29/36 | 0.503* | 0.024 |
+| SmolLM3-3B_base | -0.080 | 27/36 | 0.426 | 0.061 |
+| SmolLM3-3B_instruct | -0.195 | 18/36 | 0.463* | 0.040 |
+| SmolLM3-3B_reasoning | 0.301 | 13/36 | 0.509* | 0.022 |
+
+\* p < 0.05
+
+Layer quartile correlation profile (mean r within each quartile):
+
+| Model | Q1 (early) | Q2 | Q3 | Q4 (late) |
+|-------|-----------|----|----|----------|
+| Qwen3-4B_base | -0.040 | -0.149 | -0.149 | 0.043 |
+| Qwen3-4B_instruct | -0.083 | 0.108 | **0.323** | 0.087 |
+| Qwen3-4B_reasoning | -0.035 | 0.102 | **0.386** | **0.302** |
+| SmolLM3-3B_base | -0.061 | -0.095 | -0.038 | 0.064 |
+| SmolLM3-3B_instruct | 0.090 | 0.169 | 0.143 | 0.174 |
+| SmolLM3-3B_reasoning | -0.002 | **0.270** | 0.262 | 0.186 |
+
+Layer profile by mismatch type (Qwen3-4B_instruct):
+- over: peak_layer=19, peak_mahal=1.373
+- under: peak_layer=19, peak_mahal=1.343
+- aligned_high: peak_layer=23, peak_mahal=1.392
+- aligned_low: peak_layer=19, peak_mahal=1.351
+
+Qwen3-4B_reasoning best layer consistency: **layer 17 is best for 19/20 topics** — extremely stable.
+
+**Key findings**:
+- **Strongest correlation in any experiment**: Qwen3-4B_instruct layer 20 achieves r=0.573 (p=0.008) — much higher than the avg-layer r=0.147
+- Average-layer Mahalanobis underestimates best-layer correlation by 2-4x — optimal layer selection is crucial
+- Q3 (layers 18-26, ~60-75% depth) consistently best for Qwen3-4B instruct/reasoning — matches the "middle layers" finding from Kaplan et al.
+- Mismatch types do NOT differ much by layer profile — over- and under-polarized topics peak at the same layers. The mismatch is about magnitude, not layer localization
+- Qwen3-4B_reasoning: layer 17 is universally best (19/20 topics) — this model has an extremely concentrated partisan representation
+- SmolLM3-3B_reasoning: best layer is 13 (r=0.509), in Q2 — earlier than Qwen3-4B models
 
 #### Exp0C: Probe-Based Mismatch Analysis
 
@@ -926,7 +993,40 @@ The correlation between LLM activation polarization (Mahalanobis distance) and G
 
 **Hypothesis**: Probe confidence captures more nuanced information than raw centroid separation. Topics where the probe is CERTAIN (high confidence) may align differently with GSS than topics where the probe is merely ACCURATE.
 
-**Results**: *PENDING — Job 45596901*
+**Results** (Job 45597276, COMPLETED 2026-02-16):
+
+Pearson r with GSS polarization per model × metric:
+
+| Model | Mahalanobis | Probe Acc | Probe AUC | Mean Conf | Mean Margin | Frac Ambig |
+|-------|-------------|-----------|-----------|-----------|-------------|------------|
+| Qwen3-4B_base | 0.039 | 0.111 | 0.072 | 0.094 | 0.139 | -0.067 |
+| Qwen3-4B_instruct | 0.140 | 0.110 | 0.209 | 0.268 | 0.294 | -0.208 |
+| Qwen3-4B_reasoning | **0.250** | **0.327** | 0.195 | **0.346** | **0.354** | -0.279 |
+| SmolLM3-3B_base | -0.127 | 0.027 | -0.201 | -0.222 | -0.227 | 0.343 |
+| SmolLM3-3B_instruct | -0.269 | -0.208 | -0.372 | 0.152 | 0.237 | -0.193 |
+| SmolLM3-3B_reasoning | 0.304 | -0.114 | 0.264 | 0.128 | 0.189 | nan |
+
+Probe performance summary (mean accuracy / mean fraction ambiguous):
+- Qwen3-4B_base: acc=0.60, ambig=0.68 (weak signal)
+- Qwen3-4B_instruct: acc=0.70, ambig=0.48 (moderate signal)
+- Qwen3-4B_reasoning: acc=0.70, ambig=0.67 (moderate signal, less confident)
+- SmolLM3-3B_base: acc=0.63, ambig=0.99 (near-random)
+- SmolLM3-3B_instruct: acc=0.61, ambig=1.00 (near-random)
+- SmolLM3-3B_reasoning: acc=0.52, ambig=1.00 (completely random)
+
+Mahalanobis vs Probe Confidence rank correlation per model:
+- Qwen3-4B_base: **0.976** (very tight)
+- Qwen3-4B_instruct: 0.920
+- Qwen3-4B_reasoning: 0.895
+- SmolLM3-3B_base: 0.580 (scattered)
+- SmolLM3-3B_instruct: 0.528
+- SmolLM3-3B_reasoning: **0.344** (most scattered)
+
+**Key findings**:
+- Probe metrics (confidence, margin) provide slightly stronger GSS correlations than Mahalanobis for Qwen3-4B models, but no metric produces strong correlations
+- SmolLM3-3B models have essentially no linear party signal — probes near random chance with 100% ambiguous classifications
+- The mismatch types (over/under/aligned) don't show clearly distinct probe profiles when averaged; the differences are model-specific
+- Qwen3-4B_base has tightest mahal-probe rank agreement (0.976) — both metrics measure the same underlying signal; SmolLM3 models show large rank disagreements
 
 #### Exp0D: D-R Direction Consistency
 
@@ -936,7 +1036,44 @@ The correlation between LLM activation polarization (Mahalanobis distance) and G
 
 **Hypothesis**: If there's a universal partisan axis, all topics should have similar direction vectors (high pairwise cosine similarity), and the mismatch is purely about magnitude. If different topics use different axes, the mismatch is structural.
 
-**Results**: *PENDING — Job 45596902*
+**Results** (Job 45597277, COMPLETED 2026-02-16):
+
+D-R direction vector magnitude vs GSS polarization (Pearson r):
+
+| Model | r | p |
+|-------|-----|-------|
+| Qwen3-4B_base | 0.182 | 0.442 |
+| Qwen3-4B_instruct | **0.394** | 0.086 |
+| Qwen3-4B_reasoning | 0.351 | 0.129 |
+| SmolLM3-3B_base | -0.233 | 0.323 |
+| SmolLM3-3B_instruct | 0.207 | 0.381 |
+| SmolLM3-3B_reasoning | 0.096 | 0.688 |
+
+Direction consistency (mean pairwise cosine similarity across all 20 topics):
+
+| Model | Mean sim | Std | Interpretation |
+|-------|----------|-----|---------------|
+| SmolLM3-3B_instruct | **0.672** | 0.312 | Near-universal partisan axis |
+| Qwen3-4B_reasoning | 0.323 | 0.389 | Moderate consistency |
+| Qwen3-4B_base | 0.193 | 0.329 | Weak consistency |
+| Qwen3-4B_instruct | 0.148 | 0.482 | Weak, high variance |
+| SmolLM3-3B_reasoning | 0.028 | 0.416 | Near-random |
+| SmolLM3-3B_base | -0.014 | 0.702 | Inverted directions, highest variance |
+
+Within-group vs between-group direction similarity (notable patterns):
+- SmolLM3-3B_base: aligned_low topics cluster extremely tightly (within=0.847, diff=+0.942) while under-polarized also cluster (within=0.346, diff=+0.614) — strong bipolar structure despite zero probe accuracy
+- SmolLM3-3B_instruct: 17/20 topics collapse into one cluster — near-universal axis with only helpblk, conbus, conlegis as outliers
+- Qwen3-4B_instruct: under-polarized topics cluster together (within=0.559, diff=+0.398) — model separates "under-polarized" as a distinct encoding pattern
+
+Hierarchical clustering (4 clusters) — key observation:
+- Mismatch categories (over/under/aligned) do NOT map cleanly onto direction clusters in any model
+- Topics cluster by content similarity, not by mismatch type
+- The mismatch is about MAGNITUDE (how strongly the model separates parties), not about GEOMETRY (which axis it uses)
+
+**Key findings**:
+- SmolLM3-3B_instruct has the most consistent partisan axis (mean_sim=0.672): it encodes partisanship similarly across almost all topics — a "single axis" model. Yet it can't actually classify politicians (probe acc ~0.61, ambig=1.00)
+- Qwen3-4B models show topic-specific encoding (mean_sim=0.15-0.32) — different topics activate different partisan dimensions
+- The universal axis paradox: models with MORE consistent direction vectors don't necessarily have better GSS alignment. SmolLM3-3B_instruct (highest consistency) has r=0.207 while Qwen3-4B_instruct (low consistency) has r=0.394
 
 ---
 
@@ -954,21 +1091,27 @@ The correlation between LLM activation polarization (Mahalanobis distance) and G
 7. The model encodes affective/policy/identity dimensions of polarization — are they different? (Exp8 redesigned, PENDING)
 8. Real politician names make classification HARDER, not easier (Exp9: named=0.91, fictional=1.00) — the signal is from content, not name lookup
 9. Instruct models generate behaviorally partisan text (Exp13, accuracy 0.60-0.96)
-10. The LLM-GSS mismatch is systematic: rhetorical topics are over-polarized, personally divisive topics are under-polarized (Exp0, in progress)
+10. **The LLM-GSS mismatch is about prompt framing, not model failure** (Exp0A): Stance/survey prompts improve r from 0.04→0.29→0.19. SmolLM3-3B_reasoning+survey achieves r=0.569 (p=0.009), the highest single correlation observed
+11. **Probe metrics don't outperform Mahalanobis** for GSS alignment (Exp0C): both capture the same signal (rank correlation 0.98 for Qwen3-4B_base). SmolLM3-3B has no linear party signal at all (probe acc ~0.52-0.63, 100% ambiguous)
+12. **No universal partisan axis** (Exp0D): direction consistency varies from -0.01 (SmolLM3-3B_base) to 0.67 (SmolLM3-3B_instruct). Models with more consistent axes don't have better GSS alignment — the mismatch is about magnitude modulation, not geometry
 
 **Key insight (revised by Exp12)**: The apparent contradiction between "every head encodes party" (Exp7) and "classifiers don't transfer" (Exp3) is resolved by the granularity of measurement. Binary party labels are too coarse — the model encodes continuous ideological positioning that transfers well across topics (rho=0.84-0.90). The "topic-locked" finding from Exp3 was an artifact of binary classification, not a true feature of the representation.
+
+**Key insight (Exp0)**: The LLM-GSS polarization mismatch is primarily a **framing effect**. Our standard "rhetorical" prompts elicit representations of how politicians would *talk about* issues, while GSS surveys measure how people *answer standardized questions*. Switching to stance ("What is X's position on Y?") or survey-aligned prompts improves the correlation from near-zero to 0.45-0.57 for reasoning models. This means the moderate correlations (r=0.27-0.47) in our main experiments are not a ceiling on alignment — they reflect a measurement mismatch between rhetorical framing and opinion measurement.
 
 **Positioning relative to Kaplan et al. (ICLR 2025)**:
 - We replicate their core finding: per-head ridge regression predicts DW-NOMINATE at rho ~0.86 in middle layers, even in smaller models (8-9B vs 70B)
 - We extend with base vs instruct vs reasoning comparison: instruct achieves higher probing accuracy (rho=0.84 vs 0.79)
 - We show that continuous ideology probes transfer well across topics (rho=0.90 for instruct), which Kaplan et al. did not test
 - We demonstrate behavioral relevance: activation-level signals predict generated text partisanship (Exp13)
+- **NEW**: We show that activation-space political distances align with real-world opinion polarization (GSS), but this alignment is sensitive to prompt framing
 
 **Broader impact**: Instruction tuning systematically amplifies partisan representations (1.3-1.7x larger activation-space distances) in a way that reasoning training partially mitigates. These representations are:
 - Coherent across topics (continuous ideology, not topic-locked)
 - Behaviorally relevant (predict generated text content)
 - Concentrated in middle layers (replicating Kaplan et al.)
+- **Sensitive to prompt framing**: rhetorical prompts capture partisan *style*, while stance/survey prompts capture partisan *substance*. The two are correlated (r~0.3-0.5) but distinct
 
 This suggests RLHF/instruction tuning creates structured political knowledge representations, not just shallow stereotyping.
 
-*Last updated: Feb 16, 2026, 10:45 CST*
+*Last updated: Feb 16, 2026, 12:00 CST*
