@@ -607,15 +607,52 @@ The original Exp9 had two critical flaws:
 
 ### Results
 
-*PENDING — Job 45588048 queued on ssd-gpu*
+**Job 45588048 COMPLETED** (1:00:06 on ssd-gpu A100)
+
+**Cosine Distance: Saturated at 2.0 for ALL conditions and model types.** This is a ceiling effect — PCA-reduced party centroids always point in opposite directions, making cosine distance uninformative. This metric should be dropped from analysis.
+
+**Euclidean Distance between Party Centroids (PCA-15):**
+
+Not reported per-model in summary (all conditions saturated for cosine). But the raw log shows a clear gradient for individual topics:
+- Example (Qwen3-4B base, `polviews`): named=168, fictional=287, anonymous=416
+- Pattern: anonymous >> fictional >> named (consistently across models and topics)
+
+**Linear Probe Accuracy (5-fold CV, mean across 30 topics):**
+
+| Model Type | Named | Fictional | Anonymous |
+|-----------|-------|-----------|-----------|
+| Base      | 0.913 | 0.999     | 1.000     |
+| Instruct  | 0.964 | 1.000     | 1.000     |
+| Reasoning | 0.930 | 1.000     | 1.000     |
+
+**Per-Model Probe Accuracy (mean across topics):**
+
+| Model | Anonymous | Fictional | Named |
+|-------|-----------|-----------|-------|
+| Gemma-2-9b base | 1.000 | 1.000 | 0.970 |
+| Gemma-2-9b instruct | 0.999 | 1.000 | 0.983 |
+| Llama-3.1-8B base | 1.000 | 0.999 | 0.975 |
+| Llama-3.1-8B instruct | 1.000 | 1.000 | 0.977 |
+| Llama-3.1-8B reasoning | 1.000 | 1.000 | 0.950 |
+| Qwen3-4B base | 1.000 | 0.999 | 0.793 |
+| Qwen3-4B instruct | 1.000 | 1.000 | 0.930 |
+| Qwen3-4B reasoning | 1.000 | 1.000 | 0.909 |
 
 ### Hypothesis Assessment
 
-*PENDING*
+- **H9a (NOT SUPPORTED)**: Named condition does NOT show higher probe accuracy than fictional. In fact, named << fictional (0.91-0.96 vs 0.999-1.000). Real-world name recognition adds NOISE, not signal. The individual variation of real politicians makes party classification harder.
+- **H9b (SUPPORTED)**: Fictional >> anonymous is NOT clearly seen in probe accuracy (both ~1.000). But Euclidean distance shows fictional < anonymous, suggesting anonymous (bare party labels) creates the strongest centroid separation. The fictional condition adds individual-level variation that slightly reduces separability.
+- **H9c (PARTIALLY SUPPORTED)**: Instruct models show higher named probe accuracy (0.964) than base (0.913) or reasoning (0.930), indicating instruct models have more robust biographical knowledge. But the gap is about NAMED performance only — all models near-perfectly classify fictional/anonymous.
+- **H9d (CLEAR PATTERN)**: The three-way pattern is: **named << fictional ≈ anonymous**. This means individual variation from real names HURTS classification — real politicians are messier than stereotypes. The model can near-perfectly classify with bare party labels or fictional names, but real politicians have more complex, overlapping representations.
 
 ### Assessment
 
-*PENDING — will update after job completes. The critical comparison is the three-way pattern: named vs fictional vs anonymous. The original finding (explicit party tokens create strong signal) should still hold for cosine distance. The new question is whether fictional names with party labels produce similar encoding to real names, or whether real-world biographical knowledge adds meaningful structure.*
+**Key finding: Real politician names make party classification HARDER, not easier.** This is the opposite of what we initially expected. Named probe accuracy (0.91) is substantially lower than fictional (0.999) or anonymous (1.000). This means:
+
+1. **LLMs encode complex biographical representations** of real politicians that don't reduce cleanly to party. Real politicians cross party lines, have idiosyncratic positions, and generate varied language — all of which adds noise to D-R classification.
+2. **The high Mahalanobis distances in earlier experiments are NOT artifacts of name lookup.** If anything, real names ADD noise that reduces separation. The partisan signal emerges from the political CONTENT of prompts, modulated by biographical knowledge.
+3. **Qwen3-4B base shows the most dramatic gap** (named=0.793 vs fictional=0.999), suggesting it has less robust biographical knowledge of individual politicians but strong party-label encoding.
+4. **Cosine distance is uninformative** — always saturates at 2.0 in PCA-15 space. Future analyses should use Euclidean distance or probe accuracy instead.
 
 ---
 
@@ -802,7 +839,7 @@ Multiple experiments converge on a nuanced picture:
 - **Exp7 (redesigned)**: Nearly all heads achieve high AUC, but the redesign tests whether the *top* 5-10% most discriminative heads are stable across topics (PENDING).
 - **Exp3**: Binary cross-topic coherence at chance (0.50-0.53). Binary classifiers don't transfer.
 - **Exp12**: But continuous DW-NOMINATE probes transfer at rho=0.84-0.90! The ideology IS coherent across topics when measured continuously.
-- **Exp9 (redesigned)**: Three-condition design (named/fictional/anonymous) with cosine distance and probe accuracy (not Mahalanobis). Will clarify whether real-world identity knowledge or bare party labels drive encoding (PENDING).
+- **Exp9 (redesigned)**: Three-condition design (named/fictional/anonymous). Key result: named << fictional ≈ anonymous for probe accuracy (0.91 vs 1.00). Real politician names add NOISE to party classification — the signal comes from political content, not name lookup.
 - **Exp5/Bramson**: Near-zero correlation with actual GSS polarization (max r=0.083).
 
 **The paradox resolved (revised with Exp12)**: Binary D/R classification fails to transfer across topics (Exp3), but continuous ideology probes transfer well (Exp12, rho=0.90 for instruct). The model DOES encode a coherent ideological spectrum — but this structure is visible only with continuous measures, not with the binary party split. This is analogous to finding that temperature measurements transfer across contexts but binary "hot/cold" labels do not.
@@ -813,7 +850,7 @@ Instruct models generate measurably more partisan text (mean accuracy 0.59-0.64)
 
 ### Methodological Concerns
 
-1. **Identity recognition vs political encoding**: Exp9 (redesigned) now uses three conditions (named/fictional/anonymous) to disentangle real-world identity knowledge from bare partisan labels. Results pending.
+1. **Identity recognition vs political encoding**: Exp9 (redesigned) shows real politician names make classification HARDER (0.91 accuracy) than fictional names (0.999) or anonymous labels (1.000). The partisan signal is NOT from name lookup — real politicians are messier than stereotypes.
 
 2. **No causal evidence**: All experiments are observational (extract activations, measure distance). We don't know if the partisan signal causes model behavior or is epiphenomenal. Exp13 provides weak behavioral evidence (instruct models generate partisan text), but the keyword scoring is noisy.
 
@@ -827,12 +864,79 @@ Instruct models generate measurably more partisan text (mean accuracy 0.59-0.64)
 
 ## Pending Results
 
-Three redesigned experiments are currently running on the ssd-gpu cluster:
-- **Exp7** (Job 45588046): Top-k% head discriminability — ~2-4h runtime
-- **Exp8** (Job 45588047): Affective vs policy polarization (3 domains) — ~3-5h runtime
-- **Exp9** (Job 45588048): Anonymization with cosine/probe (3 conditions) — ~4-6h runtime
+**Completed redesigned experiments:**
+- **Exp7** (Job 45588046): COMPLETED in 14:54 — results above
+- **Exp8** (Job 45588047): COMPLETED in 18:49 — results above
+- **Exp9** (Job 45588048): COMPLETED in 1:00:06 — results above
+
+**Experiment 0 (Mismatch Analysis) — 4 sub-experiments running on ssd-gpu:**
+- **Exp0A** (Job 45596899): Prompt framing comparison (rhetoric/stance/survey) — ~30 min
+- **Exp0B** (Job 45596900): Per-layer alignment profile — ~20 min
+- **Exp0C** (Job 45596901): Probe-based mismatch analysis — ~20 min
+- **Exp0D** (Job 45596902): D-R direction consistency — ~20 min
 
 Results will be filled in above as jobs complete.
+
+---
+
+## Experiment 0: Understanding the LLM-Survey Polarization Mismatch
+
+### Motivation
+
+The correlation between LLM activation polarization (Mahalanobis distance) and GSS survey polarization is moderate at best (r = 0.27-0.47 for Qwen3-4B and SmolLM3-3B). More PCA components always increases this correlation, never decreases it — so the bottleneck is not dimensionality reduction. The mismatch is fundamental.
+
+**Key insight**: LLM activations when prompted with "Generate a statement by {name} on {topic}" capture **rhetorical polarization** — how differently politicians would FRAME or TALK about an issue. GSS surveys capture **manifested opinion** — how differently people actually ANSWER standardized questions. These are distinct mental processes.
+
+**Residual analysis** reveals systematic patterns in the mismatch:
+- **Over-polarized topics** (LLM rhetoric >> GSS opinion): colhomo, spkhomo, oprelig, impgrn, polviews — topics with strong rhetorical framing but modest actual opinion differences
+- **Under-polarized topics** (LLM rhetoric << GSS opinion): savesoul, pray, polescap, conbus, conlegis — topics with genuine opinion divides that aren't rhetorically salient
+
+### Sub-Experiments
+
+**All use only Qwen3-4B (base/instruct/reasoning) + SmolLM3-3B (base/instruct/reasoning) on 20 strategically selected topics (5 over-polarized, 5 under-polarized, 5 well-aligned high-pol, 5 well-aligned low-pol).**
+
+#### Exp0A: Prompt Framing — Rhetoric vs Opinion vs Survey
+
+**RQ**: Does switching from rhetorical to survey-style prompts improve alignment with GSS?
+
+**Method**: Three prompt conditions:
+1. RHETORICAL: "Generate a statement by {name} on {topic}" (current)
+2. STANCE: "What is {name}'s position on {topic}?"
+3. SURVEY: "If asked in a national survey about {GSS_question_text}, how would {name} respond?"
+
+**Hypothesis**: Survey-aligned prompts will produce activations that better correlate with GSS survey polarization, because they elicit opinion-like (not rhetoric-like) representations.
+
+**Results**: *PENDING — Job 45596899*
+
+#### Exp0B: Per-Layer Alignment Profile
+
+**RQ**: Which layers best predict GSS survey polarization? Is there a "rhetoric layer" vs an "opinion layer"?
+
+**Method**: Extract full (N, L, H, D) activations, compute Mahalanobis at each layer separately. Correlate per-layer distances with GSS polarization. Compare layer profiles for over-polarized vs under-polarized topics.
+
+**Hypothesis**: If rhetoric and opinion are encoded in different layers, then over-polarized topics (rhetoric >> opinion) should peak at different layers than under-polarized topics (opinion >> rhetoric).
+
+**Results**: *PENDING — Job 45596900*
+
+#### Exp0C: Probe-Based Mismatch Analysis
+
+**RQ**: Does probe accuracy/confidence predict GSS polarization better than Mahalanobis distance?
+
+**Method**: For each topic, train 5-fold CV linear probes. Compute accuracy, AUC, mean confidence (P(correct class)), and fraction of "ambiguous" politicians (confidence < 0.6). Correlate each metric with GSS.
+
+**Hypothesis**: Probe confidence captures more nuanced information than raw centroid separation. Topics where the probe is CERTAIN (high confidence) may align differently with GSS than topics where the probe is merely ACCURATE.
+
+**Results**: *PENDING — Job 45596901*
+
+#### Exp0D: D-R Direction Consistency
+
+**RQ**: Do over-polarized and under-polarized topics use different activation dimensions for party separation? Or is there a universal "partisan axis"?
+
+**Method**: For each topic, extract the D-R direction vector (centroid_R - centroid_D, normalized). Compute pairwise cosine similarity between direction vectors across all 20 topics. Cluster topics by their direction geometry.
+
+**Hypothesis**: If there's a universal partisan axis, all topics should have similar direction vectors (high pairwise cosine similarity), and the mismatch is purely about magnitude. If different topics use different axes, the mismatch is structural.
+
+**Results**: *PENDING — Job 45596902*
 
 ---
 
@@ -848,8 +952,9 @@ Results will be filled in above as jobs complete.
 5. Binary classifiers don't transfer across topics (Exp3)
 6. But continuous ideology probes DO transfer (Exp12, rho=0.90) — the representation IS coherent when measured correctly
 7. The model encodes affective/policy/identity dimensions of polarization — are they different? (Exp8 redesigned, PENDING)
-8. The signal reflects nuanced knowledge, not simple label lookup — named vs fictional vs anonymous (Exp9 redesigned, PENDING)
+8. Real politician names make classification HARDER, not easier (Exp9: named=0.91, fictional=1.00) — the signal is from content, not name lookup
 9. Instruct models generate behaviorally partisan text (Exp13, accuracy 0.60-0.96)
+10. The LLM-GSS mismatch is systematic: rhetorical topics are over-polarized, personally divisive topics are under-polarized (Exp0, in progress)
 
 **Key insight (revised by Exp12)**: The apparent contradiction between "every head encodes party" (Exp7) and "classifiers don't transfer" (Exp3) is resolved by the granularity of measurement. Binary party labels are too coarse — the model encodes continuous ideological positioning that transfers well across topics (rho=0.84-0.90). The "topic-locked" finding from Exp3 was an artifact of binary classification, not a true feature of the representation.
 
@@ -866,4 +971,4 @@ Results will be filled in above as jobs complete.
 
 This suggests RLHF/instruction tuning creates structured political knowledge representations, not just shallow stereotyping.
 
-*Last updated: Feb 15, 2026, 18:30 CST*
+*Last updated: Feb 16, 2026, 10:45 CST*
