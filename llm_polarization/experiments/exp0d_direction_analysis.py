@@ -64,9 +64,11 @@ MODEL_CONFIGS = {
     "Qwen3-4B_base": {"path": f"{MODELS_DIR}/Qwen3-4B-Base", "type": "base", "batch_size": 180, "family": "Qwen3-4B"},
     "Qwen3-4B_instruct": {"path": f"{MODELS_DIR}/Qwen3-4B-Instruct-2507", "type": "instruct", "batch_size": 180, "family": "Qwen3-4B"},
     "Qwen3-4B_reasoning": {"path": f"{MODELS_DIR}/Qwen3-4B-Thinking-2507", "type": "reasoning", "batch_size": 180, "family": "Qwen3-4B"},
-    "SmolLM3-3B_base": {"path": f"{MODELS_DIR}/SmolLM3-3B", "type": "base", "batch_size": 200, "family": "SmolLM3-3B"},
-    "SmolLM3-3B_instruct": {"path": f"{MODELS_DIR}/SmolLM3-3B-Instruct", "type": "instruct", "batch_size": 200, "family": "SmolLM3-3B"},
-    "SmolLM3-3B_reasoning": {"path": f"{MODELS_DIR}/SmolLM3-3B-Instruct", "type": "reasoning", "batch_size": 200, "family": "SmolLM3-3B"},
+    "SmolLM3-3B_base": {"path": f"{MODELS_DIR}/SmolLM3-3B-Base", "type": "base", "batch_size": 200, "family": "SmolLM3-3B"},
+    "SmolLM3-3B_instruct": {"path": f"{MODELS_DIR}/SmolLM3-3B", "type": "instruct", "batch_size": 200, "family": "SmolLM3-3B",
+                             "system_override": "/no_think"},
+    "SmolLM3-3B_reasoning": {"path": f"{MODELS_DIR}/SmolLM3-3B", "type": "reasoning", "batch_size": 200, "family": "SmolLM3-3B",
+                              "system_override": "/think"},
 }
 
 SELECTED_TOPICS = {
@@ -176,7 +178,7 @@ def main():
                 system_msg = ""
             else:
                 prompts = [f"Generate a statement by {n} on {topic_desc}." for n in politician_names]
-                system_msg = SYSTEM_MSG_POLITICIAN
+                system_msg = config.get("system_override", SYSTEM_MSG_POLITICIAN)
 
             activations = extract_heads_batched(
                 model, tokenizer, prompts, system_msg,

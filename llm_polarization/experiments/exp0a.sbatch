@@ -16,6 +16,10 @@ echo "Started at: $(date)"
 echo "Node: $(hostname)"
 echo "GPU: $(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null || echo 'N/A')"
 
+module load python cuda
+source ~/.bashrc
+conda activate /project/jevans/maxzhuyt/honest_llama_env
+
 cd /project/jevans/maxzhuyt/gss_polarization/llm_polarization/experiments
 
 python exp0a_prompt_framing.py
