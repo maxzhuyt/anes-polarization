@@ -1,0 +1,42 @@
+{
+  "gunlaw": {
+    "description": "gun control laws",
+    "category": "public_issues"
+  },
+  "abany": {
+    "description": "abortion for any reason",
+    "category": "public_issues"
+  },
+  "cappun": {
+    "description": "the death penalty",
+    "category": "public_issues"
+  },
+  "eqwlth": {
+    "description": "government reducing income inequality",
+    "category": "public_issues"
+  },
+  "natenvir": {
+    "description": "government spending on the environment",
+    "category": "public_issues"
+  },
+  "homosex": {
+    "description": "homosexual relations",
+    "category": "private_life"
+  },
+  "prayer": {
+    "description": "prayer in public schools",
+    "category": "private_life"
+  },
+  "grass": {
+    "description": "marijuana legalization",
+    "category": "private_life"
+  },
+  "polviews": {
+    "description": "political ideology and party affiliation",
+    "category": "public_issues"
+  },
+  "immig": {
+    "description": "immigration policy",
+    "category": "public_issues"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "policy": {
+    "eqwlth": "whether the government should reduce income differences between the rich and poor",
+    "natenvir": "how much money to spend on improving and protecting the environment",
+    "cappun": "whether to favor or oppose the death penalty for murder",
+    "natarms": "how much money to spend on the military armaments and defense",
+    "natfare": "how much money to spend on welfare",
+    "abany": "whether a woman should be able to obtain a legal abortion for any reason",
+    "gunlaw": "whether to require a person to obtain a police permit before buying a gun",
+    "helpnot": "whether the government should do more or less to solve the country's problems",
+    "natrace": "how much money to spend on improving the conditions of Black people",
+    "colhomo": "whether a homosexual person should be allowed to teach in college"
+  },
+  "affective": {
+    "feel_outparty": "feelings toward members of the opposing political party",
+    "trust_outparty": "whether members of the opposing political party can be trusted",
+    "marry_outparty": "how one would feel if a close family member married someone from the opposing political party",
+    "describe_outparty": "traits and characteristics that describe members of the opposing political party",
+    "work_across_aisle": "willingness to work together with members of the opposing political party",
+    "outparty_patriotism": "whether members of the opposing political party are patriotic",
+    "outparty_honesty": "whether members of the opposing political party are honest",
+    "outparty_intelligence": "whether members of the opposing political party are intelligent",
+    "outparty_openness": "whether members of the opposing political party are open-minded",
+    "social_distance": "comfort level with having neighbors, coworkers, and friends from the opposing political party"
+  },
+  "identity": {
+    "partisan_identity": "what it means to be a member of their political party",
+    "party_importance": "how important being a Democrat or Republican is to their sense of self",
+    "party_values": "the core values of their political party",
+    "political_worldview": "their general political worldview and philosophy",
+    "party_pride": "feelings of pride in being a member of their political party"
+  }
+}

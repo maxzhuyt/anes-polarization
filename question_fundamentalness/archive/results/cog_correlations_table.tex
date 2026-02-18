@@ -1,0 +1,28 @@
+\begin{table}[htbp]
+\centering
+\small
+\caption{Correlations between Polarization Center of Gravity and Fundamentalness Measures}
+\label{tab:cog_correlations}
+\begin{tabular}{lccccc}
+\toprule
+Fundamentalness Measure & N & Pearson $r$ & $p$ & Spearman $\rho$ & $p$ \\
+\midrule
+Tree:  Depth (inverse) & 89 & +0.365*** & <.001 & +0.420*** & <.001 \\
+Tree:  Hierarchy Centrality & 89 & +0.365*** & <.001 & +0.420*** & <.001 \\
+Tree:  Composite & 89 & +0.280** & 0.008 & +0.378*** & <.001 \\
+Mutual Information & 89 & +0.284** & 0.007 & +0.360*** & <.001 \\
+Predictive Power & 89 & +0.186 & 0.081 & +0.253* & 0.017 \\
+Network:  Composite & 89 & +0.171 & 0.109 & +0.230* & 0.030 \\
+PC1 Loading (Ideological) & 89 & +0.099 & 0.357 & +0.215* & 0.043 \\
+Network:  Eigenvector & 89 & +0.129 & 0.230 & +0.194 & 0.068 \\
+Network:  Betweenness & 89 & +0.179 & 0.094 & +0.180 & 0.091 \\
+Network:  Closeness & 89 & +0.140 & 0.190 & +0.176 & 0.099 \\
+Network:  PageRank & 89 & +0.126 & 0.239 & +0.168 & 0.116 \\
+Dimensionality (PCA/FA) & 89 & +0.111 & 0.300 & +0.166 & 0.119 \\
+Tree:  Subtree Size & 89 & +0.154 & 0.149 & +0.089 & 0.405 \\
+Tree:  Betweenness & 89 & +0.023 & 0.829 & +0.059 & 0.585 \\
+\bottomrule
+\end{tabular}
+\\[0.3em]
+\footnotesize{$^*p < .05$, $^{**}p < .01$, $^{***}p < .001$. Sorted by Spearman $\rho$.}
+\end{table}

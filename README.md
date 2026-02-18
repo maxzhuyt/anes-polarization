@@ -1,10 +1,11 @@
-# LLM Polarization Analysis
+# GSS Polarization Project
 
-Analyzing how LLM activation polarization correlates with survey-measured partisan polarization (GSS and ANES).
+Analyzing political polarization in the United States using the General Social Survey (GSS) and LLM activation analysis.
 
 ## Project Structure
 
 ```
+<<<<<<< HEAD
 ├── analysis_gss.ipynb              # Main analysis: GSS single-model
 ├── analysis_gss_multimodel.ipynb   # Main analysis: GSS multi-model comparison
 ├── analysis_gss_pca.ipynb          # PCA-based analysis
@@ -46,10 +47,60 @@ Analyzing how LLM activation polarization correlates with survey-measured partis
 │
 ├── llm_results/                    # Generated outputs (git-ignored)
 └── logs/                           # SLURM job logs
+=======
+gss_polarization/
+├── data/                              # All raw data
+│   ├── gss/                           # GSS survey data (2021-2024)
+│   │   ├── gss_2021_2024.csv          # Combined GSS dataset
+│   │   ├── GSS2022.dta                # Stata format
+│   │   └── GSS2024.dta
+│   ├── anes/                          # ANES survey data
+│   │   ├── anes_timeseries_2020_*.csv
+│   │   ├── anes_timeseries_2024_*.csv
+│   │   └── policy_clean.csv
+│   ├── politicians.csv                # DW-NOMINATE data (116th Congress, Voteview)
+│   └── polarization/                  # Survey polarization scores
+│       ├── public_issues_polarization.csv
+│       ├── private_life_polarization.csv
+│       └── (filtered variants)
+│
+├── question_lists/                    # GSS variable metadata
+│   ├── gss_demographic_variables.csv  # 104 demographic variables
+│   ├── gss_politicized_lifestyle_variables.csv  # 67 lifestyle variables
+│   ├── gss_all_variables.csv
+│   ├── public_issues.csv
+│   └── private_life.csv
+│
+├── llm_polarization/                  # LLM activation polarization analysis
+│   ├── README.md
+│   ├── config.py, model_utils.py, metrics_utils.py, prompt_utils.py
+│   ├── test_config.py, run_demo_sim.py, run_gss_pca.py, pipeline.py
+│   ├── *.sbatch                       # SLURM job scripts
+│   ├── notebooks/                     # Jupyter notebooks
+│   ├── results/                       # LLM output files
+│   └── logs/
+│
+├── question_fundamentalness/          # Question hierarchy analysis
+│   ├── README.md
+│   ├── gss_topic_mappings.py
+│   ├── methods/                       # Analysis methods (MI, predictive, network, PCA, tree)
+│   ├── scripts/                       # Standalone analysis scripts
+│   ├── notebooks/                     # Jupyter notebooks
+│   ├── results/                       # Analysis outputs
+│   └── logs/
+│
+├── standalone_test_config/            # Self-contained package for bare metal server
+│   ├── test_config.py
+│   ├── setup.sh
+│   └── data/
+│
+└── archive/                           # Legacy analyses from both projects
+>>>>>>> 182ba29e477499e3711a51e9abc1d437fb590538
 ```
 
-## Quick Start
+## Modules
 
+<<<<<<< HEAD
 ### test_config.py (fast config testing)
 
 Test different configurations quickly with 1% sampling:
@@ -88,9 +139,17 @@ bash setup.sh
 source venv/bin/activate
 python test_config.py --model-id google/gemma-2-9b-it --model-name gemma-2-9b-it --batch-size 8
 ```
+=======
+### LLM Polarization (`llm_polarization/`)
+Tests whether LLM attention head activations reflect survey-measured partisan polarization. Uses demographic persona prompts → activation extraction → PCA + Mahalanobis distance between Democrat/Republican centroids.
 
-## Methodology
+See [llm_polarization/README.md](llm_polarization/README.md) for details.
+>>>>>>> 182ba29e477499e3711a51e9abc1d437fb590538
 
+### Question Fundamentalness (`question_fundamentalness/`)
+Identifies which survey questions are "fundamental" using five independent methods: mutual information, predictive power, network centrality, dimensionality reduction, and tree structure analysis.
+
+<<<<<<< HEAD
 ### Party Coding
 - Democrat (100): partyid 0 (Strong D), 1 (Not strong D), 2 (Ind near D)
 - Republican (200): partyid 4 (Ind near R), 5 (Not strong R), 6 (Strong R)
@@ -120,6 +179,14 @@ Compare LLM activation polarization with survey polarization across topics (Pear
 - `test_config_{tag}_{model}_{timestamp}.csv` - correlation summary
 
 Load partial results in a notebook: `df = pd.read_pickle('path_to_checkpoint.pkl')`
+=======
+See [question_fundamentalness/README.md](question_fundamentalness/README.md) for details.
+
+## Data Sources
+
+- **GSS**: General Social Survey 2021, 2022, 2024 (Smith et al., NORC at the University of Chicago)
+- **ANES**: American National Election Studies 2020, 2024
+>>>>>>> 182ba29e477499e3711a51e9abc1d437fb590538
 
 ## GPU Clusters
 
@@ -132,6 +199,7 @@ Load partial results in a notebook: `df = pd.read_pickle('path_to_checkpoint.pkl
 ## Requirements
 
 ```
+<<<<<<< HEAD
 pandas
 numpy
 matplotlib
@@ -140,4 +208,7 @@ transformers
 scipy
 scikit-learn
 joblib
+=======
+pandas, numpy, matplotlib, torch, transformers, scipy, scikit-learn, joblib, networkx, seaborn
+>>>>>>> 182ba29e477499e3711a51e9abc1d437fb590538
 ```

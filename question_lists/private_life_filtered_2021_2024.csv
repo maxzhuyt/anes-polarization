@@ -1,0 +1,92 @@
+Variable,Description,NaturalLanguageClause
+PARTNERS_8822,How many sex partner's R had in last year,how many sex partners to have
+acqntsex,r had sex with acquaintance last year,whether to have sex with an acquaintance
+evpaidsx,ever have sex paid for or being paid since 18,whether to have sex with someone who was paid or who paid for sex
+evstray,have sex other than spouse while married,whether to have sex with someone other than a spouse while married
+frndsex,r had sex with friend last year,whether to have sex with a friend
+matesex,was 1 of r's partner's spouse or regular,whether a sex partner was a spouse or regular partner
+nummen,number of male sex partner's since 18,how many male sex partners to have
+numwomen,number of female sex partner's since 18,how many female sex partners to have
+othersex,r had sex with some other last year,whether to have sex with some other type of partner
+paidsex,r had sex for pay last year,whether to have sex for pay
+partners,how many sex partner's r had in last year,how many sex partners to have
+partnrs5,how many sex partner's r had in last 5 years,how many sex partners to have
+pikupsex,r had sex with casual date last year,whether to have sex with a casual date
+sexfreq,frequency of sex during last year,how often to have sex
+attend,how often r attends religious services,how often to attend religious services
+bible,feelings about the bible,feelings about the Bible
+god,r's confidence in the existence of god,confidence in the existence of God
+popespks,pope is infallible on matter's of faith or morals,whether the Pope is infallible on matters of faith and morals
+postlife,belief in life after death,whether to believe in life after death
+pray,how often does r pray,how often to pray
+reborn,has r ever had a 'born again' experience,whether to have had a born again experience
+relexp,have religious experience changed life,whether to have had a religious experience that changed life
+relidesc,how well r's religion describes r,how well religion describes oneself
+relidimp,how important is r's religion,how important religion is in life
+relidins,to what extent r feels insulted if someone criticized r's religion,to what extent to feel insulted if someone criticizes religion
+relidwe,how often r says 'we' when talking about r's religion,how often to say we when talking about religion
+religimp,how important is religion,how important religion is in life
+relpersn,r consider self a religious person,to what extent to consider oneself a religious person
+savesoul,tried to convince others to accept jesus,whether to try to convince others to accept Jesus
+sprtprsn,r consider self a spiritual person,to what extent to consider oneself a spiritual person
+chngtme,how often r allowed change schedule,how often to be allowed to change work schedule
+famvswk,how often fam life interfere job,how often family life interferes with work
+famwkoff,how hard to take time off,how hard it is to take time off work for personal or family matters
+mustwork,mandatory to work extra hours,whether working extra hours is mandatory
+wkvsfam,how often job interferes fam life,how often work interferes with family life
+wrkhome,how often r works at home,how often to work at home
+evcrack,r ever use crack cocaine,whether to use crack cocaine
+emailhr,email hours per week,how many hours per week to spend on email
+emailmin,email minutes per week,how many minutes per week to spend on email
+wwwhr,www hours per week,how many hours per week to use the web
+wwwmin,www minutes per week,how many minutes per week to use the web
+condom,used condom last time,whether to use a condom when having sex
+fammhneg,r's family's negative attitudes about mh problems,to what extent family holds negative attitudes about people with mental health problems
+othmhneg,r's other acquaintences negative attitudes about mh problems,to what extent acquaintances hold negative attitudes about people with mental health problems
+fear,afraid to walk at night in neighborhood,whether to be afraid to walk alone at night in the neighborhood
+opclout,need political connections to get ahead,how important having political connections is for getting ahead in life
+opeduc,need good education to get ahead,how important having a good education is for getting ahead in life
+ophrdwrk,need to work hard to get ahead,how important hard work is for getting ahead in life
+opknow,need to know right people to get ahead,how important knowing the right people is for getting ahead in life
+oppared,need educated parents to get ahead,how important having well-educated parents is for getting ahead in life
+oprelig,need to be right religion to get ahead,how important being the right religion is for getting ahead in life
+opwlth,need wealthy family to get ahead,how important coming from a wealthy family is for getting ahead in life
+goodlife,standard of living of r will improve,whether standard of living will improve
+kidssol,r's kids living standard compared to r,whether children's standard of living will be better or worse
+parsol,r's living standard compared to parents,whether standard of living is better or worse than parents'
+hapcohab,happiness of relt with partner,how happy the relationship with a partner is
+hapmar,happiness of marriage,how happy a marriage is
+happy,general happiness,how happy to be in general
+happy7,how happy r is,how happy or unhappy to be on the whole
+life,is life exciting or dull,whether life is exciting routine or dull
+satfin,satisfaction with financial situation,how satisfied to be with financial situation
+satjob,work satisfaction,how satisfied to be with work
+helpful,people helpful or looking out for selves,whether most people try to be helpful or are just looking out for themselves
+helpfulnv,people helpful or looking out for selves (no volunteered response on web),whether most people try to be helpful or are just looking out for themselves
+helpfulv,people helpful or looking out for selves (with volunteered response on web),whether most people try to be helpful or are just looking out for themselves
+hrsrelax,hours per day r have to relax,how many hours per day to have to relax
+hunt,does r or spouse hunt,whether to go hunting
+socbar,spend evening at bar,how often to go to a bar
+socfrend,spend evening with friends,how often to spend a social evening with friends
+socommun,spend evening with neighbor,how often to spend a social evening with neighbors
+socrel,spend evening with relatives,how often to spend a social evening with relatives
+xmovie,seen x-rated movie in last year,whether to see an X-rated movie
+homosex,homosexual sex relations,whether homosexual sex relations are wrong
+premarsx,sex before marriage,whether sex before marriage is wrong
+teensex,sex before marriage:teens 14-16,whether sex before marriage for teenagers is wrong
+xmarsex,sex with person other than spouse,whether extramarital sex is wrong
+eldfnce,GRANDPARENTS SHOULD HELP GRANDCHILDREN FINANCIALLY,whether grandparents should help grandchildren financially
+marasian,close relative marry asian,how to feel about a close relative marrying an Asian American person
+marmakid,single ma can raise kids well as couple,whether a single mother can raise a child as well as a married couple
+marpakid,single pa can raise kids well as couple,whether a single father can raise a child as well as a married couple
+marwht,r favor close relative marrying white person,how to feel about a close relative marrying a white person
+meovrwrk,men hurt family when focus on work too much,whether family life suffers when men focus too much on work
+recycle,recycle cans bottles,how often to make a special effort to recycle
+raclive,any opp. race in neighborhood," ""Black people"" for non-black respondents) living in this neighborhood now?"""
+rfamlook,hours r spends looking after family members,how many hours per week to spend looking after family members
+spfalook,hours spouse spends looking after family members,how many hours per week a spouse spends looking after family members
+richwork,"if rich, continue or stop working",whether to continue working if rich enough to live comfortably
+spanking,favor spanking to discipline child,whether it is sometimes necessary to discipline a child with spanking
+toofast,science makes our way of life change too fast,whether science makes life change too fast
+intsci,interested in new scientific discoveries,how interested to be in new scientific discoveries
+inttech,interested in technologies,how interested to be in new inventions and technologies

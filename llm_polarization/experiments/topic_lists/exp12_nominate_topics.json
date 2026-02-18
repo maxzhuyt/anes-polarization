@@ -1,0 +1,42 @@
+{
+  "natcrimy": {
+    "description": "how much money to spend on law enforcement",
+    "category": "public_issues"
+  },
+  "conclerg": {
+    "description": "the level of confidence in organized religion",
+    "category": "public_issues"
+  },
+  "natrace": {
+    "description": "how much money to spend on improving the conditions of Black people",
+    "category": "public_issues"
+  },
+  "govunemp": {
+    "description": "whether the government should provide unemployment benefits",
+    "category": "public_issues"
+  },
+  "grnsol": {
+    "description": "how willing to accept cuts in living standards to protect the environment",
+    "category": "public_issues"
+  },
+  "inteduc": {
+    "description": "how interested to be in local school issues",
+    "category": "public_issues"
+  },
+  "acqntsex": {
+    "description": "whether to have sex with an acquaintance",
+    "category": "private_life"
+  },
+  "helpfrds": {
+    "description": "whether people who are better off should help friends who are less well off",
+    "category": "private_life"
+  },
+  "hunt": {
+    "description": "whether to go hunting",
+    "category": "private_life"
+  },
+  "egomeans": {
+    "description": "whether life is only meaningful if you provide the meaning yourself",
+    "category": "private_life"
+  }
+}
