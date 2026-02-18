@@ -1,0 +1,22 @@
+/project/jevans/maxzhuyt/honest_llama_env/lib/python3.10/site-packages/torch/cuda/__init__.py:63: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+  import pynvml  # type: ignore[import]
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:04<00:14,  4.93s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:09<00:09,  4.99s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:14<00:04,  4.97s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:16<00:00,  3.51s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:16<00:00,  4.04s/it]
+Traceback (most recent call last):
+  File "/project/jevans/maxzhuyt/claude_polarization/anes-polarization/run_gss_pca.py", line 686, in <module>
+    main()
+  File "/project/jevans/maxzhuyt/claude_polarization/anes-polarization/run_gss_pca.py", line 554, in main
+    corrs = compute_correlations_pca(df_llm, df_gss, cat_name, args.pca_dims)
+  File "/project/jevans/maxzhuyt/claude_polarization/anes-polarization/run_gss_pca.py", line 263, in compute_correlations_pca
+    df_merged = df_llm.merge(
+  File "/project/jevans/maxzhuyt/honest_llama_env/lib/python3.10/site-packages/pandas/core/frame.py", line 10832, in merge
+    return merge(
+  File "/project/jevans/maxzhuyt/honest_llama_env/lib/python3.10/site-packages/pandas/core/reshape/merge.py", line 170, in merge
+    op = _MergeOperation(
+  File "/project/jevans/maxzhuyt/honest_llama_env/lib/python3.10/site-packages/pandas/core/reshape/merge.py", line 794, in __init__
+    ) = self._get_merge_keys()
+  File "/project/jevans/maxzhuyt/honest_llama_env/lib/python3.10/site-packages/pandas/core/reshape/merge.py", line 1310, in _get_merge_keys
+    left_keys.append(left._get_label_or_level_values(lk))
+  File "/project/jevans/maxzhuyt/honest_llama_env/lib/python3.10/site-packages/pandas/core/generic.py", line 1911, in _get_label_or_level_values
+    raise KeyError(key)
+KeyError: 'Topic'

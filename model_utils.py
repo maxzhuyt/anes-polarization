@@ -13,7 +13,8 @@ from typing import List, Tuple, Optional
 
 def load_model(
     path: str,
-    dtype: Optional[torch.dtype] = None
+    dtype: Optional[torch.dtype] = None,
+    attn_implementation: str = "sdpa"
 ) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
     """
     Load a causal language model and tokenizer.
@@ -21,6 +22,7 @@ def load_model(
     Args:
         path: Path to the model directory
         dtype: Optional dtype override (defaults to bfloat16 if supported, else float16)
+        attn_implementation: Attention backend ("sdpa", "flash_attention_2", or "eager")
 
     Returns:
         Tuple of (model, tokenizer)
@@ -45,7 +47,7 @@ def load_model(
         torch_dtype=dtype,
         device_map="auto",
         local_files_only=True,
-        attn_implementation="eager"
+        attn_implementation=attn_implementation
     )
     model.generation_config.pad_token_id = tokenizer.pad_token_id
 
@@ -85,7 +87,8 @@ def extract_heads_batched(
     model.eval()
     L = model.config.num_hidden_layers
     H = model.config.num_attention_heads
-    D_head = model.config.hidden_size // H
+    # Use explicit head_dim if available (for GQA models like Gemma), otherwise compute
+    D_head = getattr(model.config, 'head_dim', model.config.hidden_size // H)
 
     activations = []
 
@@ -110,19 +113,37 @@ def extract_heads_batched(
 
     print(f"  > Extracting with Batch Size {batch_size}...")
 
+    def format_prompt(text: str) -> str:
+        """Format a single prompt, handling different model types."""
+        # Try chat template with system message first
+        if hasattr(tokenizer, 'chat_template') and tokenizer.chat_template:
+            try:
+                return tokenizer.apply_chat_template(
+                    [{"role": "system", "content": system_msg}, {"role": "user", "content": text}],
+                    tokenize=False,
+                    add_generation_prompt=True
+                )
+            except Exception:
+                # Some models (like Gemma) don't support system role
+                try:
+                    # Try without system message, prepend to user message instead
+                    combined = f"{system_msg}\n\n{text}"
+                    return tokenizer.apply_chat_template(
+                        [{"role": "user", "content": combined}],
+                        tokenize=False,
+                        add_generation_prompt=True
+                    )
+                except Exception:
+                    pass
+        # Fallback for base models: simple text formatting
+        return f"{system_msg}\n\n{text}"
+
     try:
         for i in range(0, len(texts), batch_size):
             batch = texts[i:i+batch_size]
 
-            # Format using chat template
-            formatted_batch = [
-                tokenizer.apply_chat_template(
-                    [{"role": "system", "content": system_msg}, {"role": "user", "content": t}],
-                    tokenize=False,
-                    add_generation_prompt=True
-                )
-                for t in batch
-            ]
+            # Format using appropriate method for this model
+            formatted_batch = [format_prompt(t) for t in batch]
 
             enc = tokenizer(
                 formatted_batch,
@@ -157,9 +178,11 @@ def get_model_info(model: AutoModelForCausalLM) -> dict:
         Dictionary with model info (num_layers, num_heads, hidden_size, head_dim)
     """
     config = model.config
+    # Use explicit head_dim if available (for GQA models like Gemma), otherwise compute
+    head_dim = getattr(config, 'head_dim', config.hidden_size // config.num_attention_heads)
     return {
         "num_layers": config.num_hidden_layers,
         "num_heads": config.num_attention_heads,
         "hidden_size": config.hidden_size,
-        "head_dim": config.hidden_size // config.num_attention_heads,
+        "head_dim": head_dim,
     }
