@@ -1,0 +1,230 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{caption}
+
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue}
+
+\title{Methodology: LLM Activation Polarization vs.\ GSS Survey Polarization}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+% =============================================================================
+\section{Overview}
+% =============================================================================
+
+We ask whether the partisan geometry encoded in large language model (LLM) attention activations tracks real political polarization as measured by survey responses. For each of $T$ political topics, we compute two quantities:
+
+\begin{enumerate}
+    \item \textbf{LLM activation polarization}: the Mahalanobis distance between Democrat and Republican centroids in a per-head PCA-reduced activation space.
+    \item \textbf{Survey polarization}: the normalized partisan gap in GSS response means.
+\end{enumerate}
+
+The main result is the Pearson $r$ (and Spearman $\rho$) between these two vectors across all $T$ topics.
+
+% =============================================================================
+\section{Survey Polarization Measure}
+\label{sec:gss}
+% =============================================================================
+
+For each topic $t$, we compute the survey-measured partisan gap from the General Social Survey (GSS) 2021--2024 cumulative dataset:
+\begin{equation}
+    \delta_t = \frac{|\bar{x}^R_t - \bar{x}^D_t|}{s_t}
+\end{equation}
+where $\bar{x}^D_t$ and $\bar{x}^R_t$ are the mean response codes among Democrats and Republicans respectively, and $s_t$ is the maximum response code on the topic's scale (so that $\delta_t \in [0,1]$ regardless of the original scale range). Topics are included only if at least 100 Democrats and 100 Republicans responded ($n_D \geq 100$, $n_R \geq 100$, $n \geq 200$ total).
+
+\paragraph{Party coding.}
+Respondents are classified by the GSS \texttt{partyid} variable on a 7-point scale:
+
+\begin{center}
+\begin{tabular}{clc}
+\toprule
+\texttt{partyid} & Label & Party code \\
+\midrule
+0 & Strong Democrat & $D$ (100) \\
+1 & Not strong Democrat & $D$ (100) \\
+2 & Independent, near Democrat & $D$ (100) \\
+3 & Independent & \textit{excluded} \\
+4 & Independent, near Republican & $R$ (200) \\
+5 & Not strong Republican & $R$ (200) \\
+6 & Strong Republican & $R$ (200) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Topic scope.}
+We analyze $T = 126$ public-issue topics from the GSS. Eight topics are excluded because their wording contains explicit racial comparison framing that conflates the topic-of-interest with the persona-construction signal (\texttt{hubbywk1}, \texttt{racdif1}--\texttt{racdif4}, \texttt{workwhts}, \texttt{wlthwhts}, \texttt{intlwhts}).
+
+% =============================================================================
+\section{LLM Activation Extraction}
+\label{sec:extraction}
+% =============================================================================
+
+\paragraph{Model.}
+All models are autoregressive transformer LLMs loaded in \texttt{bfloat16} (or \texttt{float16} on hardware without bf16 support) via HuggingFace Transformers. We use left-padding so that the last token in every sequence corresponds to the final content token, regardless of batch padding.
+
+\paragraph{Hook placement.}
+We register forward hooks on the output-projection layer (\texttt{o\_proj}) of each of the $L$ transformer layers. Specifically, the hook captures \texttt{input[0]} to \texttt{o\_proj} -- the pre-projection concatenated head outputs -- which has shape $[B, S, H \cdot D_h]$ where $B$ is the batch size, $S$ the sequence length, $H$ the number of attention heads, and $D_h$ the per-head dimension ($D_h = d_\text{model}/H$, or the explicit \texttt{head\_dim} for grouped-query attention models). We reshape to $[B, S, H, D_h]$ and extract the \textbf{last token position} $[:, -1, :, :]$.
+
+This choice of hook point means we capture the value that each head intends to write into the residual stream for the prompt-final token, before the heads are mixed by the projection. This makes heads individually separable while remaining within the standard residual stream computation.
+
+After processing all $N$ prompts in batches, activations are concatenated to a tensor $\mathbf{X} \in \mathbb{R}^{N \times L \times H \times D_h}$.
+
+% =============================================================================
+\section{Per-Head Mahalanobis Distance}
+\label{sec:mahal}
+% =============================================================================
+
+\paragraph{Per-head computation.}
+For each attention head $(l, h)$, extract the $N \times D_h$ matrix $\mathbf{X}_{lh} = \mathbf{X}[:, l, h, :]$.
+
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{PCA}: Fit \texttt{sklearn.PCA} on all $N$ rows (both parties pooled) and reduce to $k = \min(15,\, D_h,\, N-1)$ components, yielding $\tilde{\mathbf{X}}_{lh} \in \mathbb{R}^{N \times k}$.
+
+    \item \textbf{Party centroids}: Partition rows by label into $\mathcal{D}$ (Democrats) and $\mathcal{R}$ (Republicans). Compute the weighted mean centroid for each group:
+    \begin{equation}
+        \boldsymbol{\mu}_D = \frac{1}{|\mathcal{D}|}\sum_{i \in \mathcal{D}} \tilde{\mathbf{x}}_i, \qquad
+        \boldsymbol{\mu}_R = \frac{1}{|\mathcal{R}|}\sum_{i \in \mathcal{R}} \tilde{\mathbf{x}}_i
+    \end{equation}
+    (Median-based centroids are also computed as a robustness check.)
+
+    \item \textbf{Pooled covariance}:
+    \begin{equation}
+        \boldsymbol{\Sigma} = \frac{\boldsymbol{\Sigma}_D + \boldsymbol{\Sigma}_R}{2} + \varepsilon \mathbf{I}, \qquad \varepsilon = 10^{-6}
+    \end{equation}
+    where $\boldsymbol{\Sigma}_D$, $\boldsymbol{\Sigma}_R$ are the within-party sample covariance matrices of the PCA-reduced data.
+
+    \item \textbf{Mahalanobis distance}:
+    \begin{equation}
+        m_{lh} = \sqrt{(\boldsymbol{\mu}_D - \boldsymbol{\mu}_R)^\top \boldsymbol{\Sigma}^{-1} (\boldsymbol{\mu}_D - \boldsymbol{\mu}_R)}
+    \end{equation}
+    If fewer than 6 samples exist in either party group, or if matrix inversion fails, $m_{lh} = 0$.
+\end{enumerate}
+
+This is computed for each of the $L \times H$ heads in parallel (using \texttt{joblib}), producing a grid $\mathbf{M} \in \mathbb{R}^{L \times H}$.
+
+\paragraph{Aggregate metrics.}
+Two summary statistics are derived from the grid per topic:
+\begin{align}
+    m^\text{all} &= \frac{1}{LH}\sum_{l,h} m_{lh} \label{eq:mall} \\
+    m^\text{mid} &= \frac{1}{|\mathcal{L}_\text{mid}| \cdot H}\sum_{l \in \mathcal{L}_\text{mid},\, h} m_{lh} \label{eq:mmid}
+\end{align}
+where $\mathcal{L}_\text{mid} = \{l : \lfloor 0.45L \rfloor \leq l < \max(\lfloor 0.55L \rfloor,\, \lfloor 0.45L \rfloor + 1)\}$ is the set of layers in the middle 10\% of the network. Note: $m^\text{mid}$ performs worse than $m^\text{all}$ for deep models ($L \geq 70$), with correlations reduced by up to 0.48.
+
+% =============================================================================
+\section{Simulation Methods}
+\label{sec:methods}
+% =============================================================================
+
+We test two methods for constructing the $N$ prompts per topic.
+
+% ---
+\subsection{Politician Simulation}
+\label{sec:politician}
+% ---
+
+\paragraph{Subjects.}
+All 550 members of the 116th U.S. Congress with a valid full name and party affiliation (Democrat or Republican). Labels are derived from the VoteView NOMINATE dataset.
+
+\paragraph{Prompt construction.}
+For each of the three prompt conditions below, one prompt is generated per politician per topic, giving $N = 550$ prompts. The system message is fixed as: \textit{``You are simulating the public stance of U.S.\ politicians.''}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Condition & Instruct-model prompt & Base-model prompt \\
+\midrule
+\textsc{rhetorical} & \texttt{Generate a statement by \{name\} on \{topic\}.} & \texttt{\{name\} makes a statement on \{topic\}:} \\
+\textsc{stance}     & \texttt{What is \{name\}'s position on \{topic\}?}   & \texttt{On \{topic\}, \{name\}'s position is} \\
+\textsc{survey}     & \texttt{If asked in a national survey about \{question\},} & \texttt{In a survey about \{question\},} \\
+                    & \quad\texttt{how would \{name\} respond?} & \quad\texttt{\{name\} would respond} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent\texttt{\{topic\}} is the \texttt{NaturalLanguageClause} for the question (e.g., \textit{``whether a pregnant woman should be able to obtain a legal abortion for any reason''}). \texttt{\{question\}} is the same field, falling back to \texttt{SurveyQuestion} if absent. Maximum sequence length: 128 tokens.
+
+\paragraph{What the conditions test.}
+The \textsc{rhetorical} condition tests whether the model's generation of political speech is organized by partisan identity; \textsc{stance} tests factual belief-attribution; \textsc{survey} tests whether the model tracks response-style differences between parties. Differences in $r$ across conditions reveal which representational mode is most topographically aligned with actual public opinion gaps.
+
+% ---
+\subsection{Demographic Simulation}
+\label{sec:demo}
+% ---
+
+\paragraph{Subjects.}
+For each topic $t$, we take all GSS 2021--2024 respondents who (a) gave a valid response to topic $t$ and (b) are classified Democrat or Republican by \texttt{partyid} (Section~\ref{sec:gss}). We require at least 10 respondents per party per topic. A 10\% stratified sample is drawn (stratified on \texttt{polviews}, \texttt{age\_bin}, \texttt{degree}, \texttt{race}, \texttt{sex}, \texttt{rincome}).
+
+\paragraph{Persona profile construction.}
+Each respondent is described by up to 83 demographic fields (from \texttt{gss\_demographic\_variables.csv}). For each field with a non-missing value, the numeric response code is mapped to a human-readable label via Stata value-label tables (loaded from \texttt{GSS2024.dta} and \texttt{GSS2022.dta}), producing key--value strings such as \textit{``Age: 45''} or \textit{``Education: Bachelor's degree''}. Fields are joined with ``\texttt{. }'' and \textbf{shuffled randomly} per topic (seeded on \texttt{hash(topic)} to prevent ordering artifacts), forming a profile string.
+
+\paragraph{Prompt format (Format B, default).}
+\begin{quote}
+\textit{System}: ``You are simulating the views of an American.''\\[2pt]
+\textit{User}: ``Given the following background about a person:\\
+\quad\texttt{\{profile\}}\\[2pt]
+How would they answer: \texttt{\{survey\_question\}}''
+\end{quote}
+where \texttt{\{survey\_question\}} is the \texttt{SurveyQuestion} column (verbatim or lightly cleaned GSS question wording). Maximum sequence length: 512 tokens.
+
+Two alternative formats are also implemented: Format A (\texttt{\{profile\}$\backslash$n$\backslash$nSurvey question: \{question\}}) and Format C (\texttt{\{profile\}$\backslash$n$\backslash$n\{question\}}).
+
+\paragraph{Leakage prevention.}
+If lifestyle variables are included in the persona (\texttt{--include-lifestyle} flag), any lifestyle field that coincides with the survey topic currently being asked is excluded from that respondent's profile for that topic.
+
+% =============================================================================
+\section{Alignment Metric}
+\label{sec:alignment}
+% =============================================================================
+
+For a given simulation method $m \in \{\text{politician}, \text{demo}\}$, condition $c$, and layer-selection variant $v \in \{m^\text{all}, m^\text{mid}\}$, we compute the LLM activation polarization $\hat{\delta}_t^{(m,c,v)}$ for each of the $T = 126$ topics and correlate with the survey polarization $\delta_t$ (Section~\ref{sec:gss}):
+\begin{align}
+    r &= \mathrm{Pearson}\!\left(\hat{\boldsymbol{\delta}}^{(m,c,v)},\, \boldsymbol{\delta}\right) \\
+    \rho &= \mathrm{Spearman}\!\left(\hat{\boldsymbol{\delta}}^{(m,c,v)},\, \boldsymbol{\delta}\right)
+\end{align}
+
+\paragraph{Interpretation.}
+A high $r$ means the model's activation geometry assigns the same rank ordering to topics as real survey respondents do: topics that generate high partisan divergence in activations are the same topics where Democrats and Republicans actually disagree most in surveys.
+
+\paragraph{Politician vs.\ demographic comparison.}
+When $r_\text{politician} > r_\text{demo}$, the model's implicit political knowledge (encoded via named politician prompts) more faithfully mirrors the GSS polarization landscape than the model's behavior under explicit demographic conditioning. This can occur even though the demographic simulation uses \textit{real} respondent data, because the politician simulation leverages the model's richer parametric knowledge about which topics are contested between parties.
+
+% =============================================================================
+\section{Models Tested}
+\label{sec:models}
+% =============================================================================
+
+\begin{center}
+\begin{tabular}{llcc}
+\toprule
+Model & Type & Parameters & GPU \\
+\midrule
+Meta-Llama-3.1-8B-Instruct & instruct & 8B & H100 \\
+Qwen3-4B (base/instruct/reasoning) & all three & 4B & A100 \\
+Llama-3.1-8B (base/instruct/reasoning) & all three & 8B & H100 \\
+Gemma-2-9b (base/instruct) & base + instruct & 9B & H100 \\
+Mistral-Small-24B-Instruct-2501 & instruct & 24B & 2$\times$A100 \\
+Qwen3-32B & instruct & 32B & 2$\times$A100 \\
+DeepSeek-R1-Distill-Qwen-32B & reasoning & 32B & 2$\times$A100 \\
+dolphin-2.9.1-yi-1.5-34b & instruct & 34B & 2$\times$A100 \\
+Qwen2.5-72B-Instruct & instruct & 72B & 2$\times$H100 \\
+Llama-3.3-70B-Instruct & instruct & 70B & 2$\times$H100 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent All models loaded in \texttt{bfloat16} with \texttt{device\_map=``auto''} for multi-GPU sharding. 70B+ models use 4-bit NF4 quantization (bitsandbytes, double-quantized) for the demographic simulation to fit within the 160\,GB VRAM budget.
+
+\end{document}

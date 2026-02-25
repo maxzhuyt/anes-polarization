@@ -1,0 +1,99 @@
+Variable,short_label
+PARTNERS_8822,Sex Partner Count
+acqntsex,Sex w/ Acquaintance
+evpaidsx,Paid Sex History
+evstray,Extramarital Sex
+frndsex,Sex with Friend
+matesex,Partner Type
+nummen,Male Partner Count
+numwomen,Female Partner Count
+othersex,Other Partner Type
+paidsex,Sex for Pay
+partners,Sex Partner Count
+partnrs5,5yr Partner Count
+pikupsex,Casual Date Sex
+sexfreq,Sexual Frequency
+astrolgy,Read Horoscopes
+astrosci,Astrology Science
+attend,Relig. Attendance
+bible,Bible View
+god,Belief in God
+godmeans,God gives Meaning
+makefrnd,Relig. & Friends
+popespks,Pope Infallibility
+postlife,Life After Death
+pray,Prayer Frequency
+reborn,Born Again Exp.
+relexp,Life-Changing Exp.
+relidesc,Relig. Description
+relidimp,Importance of Rel.
+relidins,Insult by Relig.
+relidwe,Relig. "We" Usage
+religimp,Religion Import.
+relpersn,ID as Religious
+savesoul,Evangelism Effort
+sprtprsn,ID as Spiritual
+theism,Personal God
+evcrack,Crack Cocaine Use
+egomeans,Self-Made Meaning
+fatalism,Agency vs. Fate
+nihilism,Life Purpose
+emailhr,Email Hours/Week
+emailmin,Email Mins/Week
+wwwhr,Web Hours/Week
+wwwmin,Web Mins/Week
+condom,Condom Usage
+fammhneg,Fam. MH Stigma
+othmhneg,Acq. MH Stigma
+fear,Fear of Neighborhd
+firstyou,Self/Family First
+helpfrds,Helping Friends
+opclout,Pol. Connections
+opeduc,Importance of Ed.
+ophrdwrk,Importance of Work
+opknow,Social Connections
+oppared,Parents' Education
+oprelig,Importance of Rel.
+opwlth,Wealthy Family
+goodlife,Improvement Outlook
+kidssol,Kids' Std. Living
+parsol,Parents' Std. Liv.
+life,Excitement in Life
+satfam7,Family Satisfaction
+helpful,Altruism Belief
+helpfulnv,Altruism (NV)
+helpfulv,Altruism (V)
+hrsrelax,Daily Relax Hours
+hunt,Hunting Status
+socbar,Bar Attendance
+socfrend,Social w/ Friends
+socommun,Social w/ Neighbor
+socrel,Social w/ Relative
+visnhist,History Museum Vis
+vissci,Science Museum Vis
+viszoo,Zoo Visitation
+xmovie,X-rated Movie
+homosex,Homosexual Sex Vw
+homosex1,Gay Sex View (1)
+premarsx,Premarital Sex Vw
+teensex,Teen Sex View
+xmarsex,Extra. Sex View
+xmarsex1,Extra. Sex Vw (1)
+eldfnce,Help Grandchildren
+marasian,Marry Asian Amer.
+marmakid,Single Mom Efficacy
+marpakid,Single Dad Efficacy
+marwht,Marry White person
+meovrwrk,Work-Family Conf.
+relmarry,Interfaith Marry
+recycle,Recycle Effort
+raclive,Neighborhd Integr.
+rfamlook,Family Care Hours
+spfalook,Spouse Care Hours
+richwork,Work if Wealthy
+spanking,Spanking Belief
+toofast,Science Speed
+trustsci,Science vs. Faith
+intmed,Medical Interest
+intsci,Science Interest
+inttech,Tech Interest

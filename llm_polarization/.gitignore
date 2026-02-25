@@ -1,0 +1,72 @@
+# Secrets
+secrets.py
+.env
+.env.*
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Logs
+logs/
+*.log
+*.out
+*.err
+experiments/logs/
+
+# Results and checkpoints
+results/
+*.pkl
+*.pickle
+*.csv.gz
+experiments/results/
+
+# Intermediate files
+*.ckpt
+*.checkpoint
+*.tmp
+
+# Data files (if any local data)
+data/local/
+*.dta
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Colab outputs (stored separately)
+colab_results/
+
+# Model caches (should not be committed)
+models/
+checkpoints/

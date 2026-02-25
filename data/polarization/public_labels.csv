@@ -1,0 +1,173 @@
+Variable,short_label
+abany,Abort: Any Reason
+abdefect,Abort: Defect
+abhlth,Abort: Health
+abnomore,Abort: No More Kids
+abpoor,Abort: Low Income
+abrape,Abort: Rape Case
+absingle,Abort: Unmarried
+abhelp1,Abort Help: Arrange
+abhelp2,Abort Help: Pay
+abhelp3,Abort Help: Travel
+abhelp4,Abort Help: Support
+advfront,Fed Sci Funding
+balneg,Sci Harm > Benefit
+balpos,Sci Benefit > Harm
+scibnfts,Sci Benefit Ratio
+scientbe,Sci Help Avg Man
+scientgo,Sci Good Humanity
+scienthe,Sci Solve Problems
+scientod,Sci are Peculiar
+nanowill,Nanotech Ratio
+affrmact,Pref: Black Hire
+discaff,Whites Hurt: AA
+discaffm,Men Hurt: AA
+discaffw,Women Hurt: AA
+fehire,Spec. Effort: Women
+fejobaff,Pref: Women Hire
+wrkwayup,Black Work Up
+carsgen,Car Pollut. Danger
+chemgen,Pesticide Danger
+genegen,GMO Crop Danger
+grncon,Envir. Concern
+grnecon,Envir vs Econ
+grneffme,Envir. Daily Effect
+grnexagg,Envir Threat Exag.
+grnprice,Pay More: Envir
+grnprog,Progress vs Envir
+grnsol,Cut Std Living: Env
+grntaxes,Higher Tax: Envir
+grwtharm,Econ Growth Harms
+grwthelp,Econ Growth Helps
+harmsgrn,Mod Life Harms Env
+helpharm,Life Help/Harm Env
+ihlpgrn,Action for Envir
+impgrn,Life > Envir
+indusgen,Indus. Pollut Danger
+nobuygrn,Avoid Prod: Envir
+nukegen,Nuclear Danger
+othssame,Envir: Peer Action
+scigrn,Sci Solve Envir
+tempgen,Greenhouse Effect
+tempgen1,Climate Danger
+toodifme,Envir Action Hard
+watergen,Water Pollut Danger
+cappun,Death Penalty
+courts,Court Harshness
+polabuse,Police Strike: Talk
+polattak,Police Strike: Fist
+polescap,Police Strike: Run
+polhitok,Police Strike: Gen
+polmurdr,Police Strike: Murd
+colath,Teach: Anti-Relig
+colcom,Teach: Communist
+colhomo,Teach: Homosexual
+colmil,Teach: Militarist
+colmslm,Teach: Anti-US Musl
+colrac,Teach: Racist
+conarmy,Conf: Military
+conbus,Conf: Companies
+conclerg,Conf: Religion
+coneduc,Conf: Education
+confed,Conf: Fed Exec
+confinan,Conf: Banks
+conjudge,Conf: Supreme Court
+conlegis,Conf: Congress
+dangroth,MH: Forced Hosp
+dangrslf,MH: Self-Harm Hosp
+mustdoc,MH: Forced Doctor
+musthosp,MH: Forced Hosp Gen
+mustmed,MH: Forced Meds
+viggrp,MH: Group Home
+divlaw,Divorce Ease
+eqwlth,Govt Reduce Ineq
+goveqinc,Govt Responsibility
+goveqinc1,Govt Fix Ineq
+govineq1,Politician Care
+govineq2,Govt Ineq Success
+govchrst,Govt Christ Values
+govfnaid,Govt College Aid
+govfnanc,Govt Job Creation
+govunemp,Unemploy. Benefits
+helpblk,Govt Aid Black
+helpnot,Govt Scope
+helppoor,Govt Poor Aid
+helpsick,Govt Medical Aid
+hlthgov,Limited Health Care
+grass,Legal Marijuana
+gunlaw,Gun Permits
+hubbywk1,Trad. Gender Roles
+inteduc,Interest: Education
+intenvir,Interest: Envir
+intfarm,Interest: Farm
+intmil,Interest: Military
+intspace,Interest: Space
+ldctax,Tax for Poor Nat.
+uswary,WWIII Expectation
+letdie1,Assisted Dying
+letdie1y,Assisted Dying (y)
+libath,Library: Anti-Rel
+libathy,Library: Anti-Rel (y)
+libcom,Library: Communist
+libhomo,Library: Homosex
+libmil,Library: Militarist
+libmslm,Library: Anti-US Mus
+librac,Library: Racist
+nataid,Spend: Foreign Aid
+nataidy,Spend: Assist Other
+natarms,Spend: Military
+natarmsy,Spend: Defense (y)
+natchld,Spend: Childcare
+natcity,Spend: City Probs
+natcityy,Spend: City Assist
+natcrime,Spend: Crime Rate
+natcrimy,Spend: Law Enforce
+natdrug,Spend: Addiction
+natdrugy,Spend: Drug Rehab
+nateduc,Spend: Educ System
+nateducy,Spend: Education (y)
+natenrgy,Spend: Alt Energy
+natenvir,Spend: Protect Env
+natenviy,Spend: Environment
+natfare,Spend: Welfare
+natfarey,Spend: Poor Assist
+natheal,Spend: Nat. Health
+nathealy,Spend: Health (y)
+natmass,Spend: Mass Transit
+natpark,Spend: Parks
+natrace,Spend: Black Cond.
+natracey,Spend: Black Assist
+natroad,Spend: Roads
+natsci,Spend: Sci Research
+natsoc,Spend: Soc Security
+natspac,Spend: Space Program
+natspacy,Spend: Space (y)
+nextgen,Sci Opportunities
+oprace,Importance of Race
+opsex,Importance of Sex
+polviews,Liberal/Cons Scale
+pillok,Teen Birth Control
+sexeduc,Sex Education
+prayer,School Prayer
+religinf,Religious Influence
+racdif1,Diff: Discrim
+racdif2,Diff: Ability
+racdif3,Diff: Education
+racdif4,Diff: Motivation
+racopen,Open Housing Law
+intlwhts,White Intelligence
+wlthwhts,White Wealth
+workwhts,White Hard Work
+spkath,Speak: Anti-Relig
+spkathy,Speak: Anti-Relig (y)
+spkcom,Speak: Communist
+spkcomy,Speak: Communist (y)
+spkhomo,Speak: Homosexual
+spkhomoy,Speak: Gay (y)
+spkmil,Speak: Militarist
+spkmily,Speak: Militarist (y)
+spkmslm,Speak: Anti-US Mus
+spkmslmy,Speak: Islamic (y)
+spkrac,Speak: Racist
+spkracy,Speak: Racist (y)
+tax,Fed Tax Level
